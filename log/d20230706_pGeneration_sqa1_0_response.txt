@@ -1,0 +1,43 @@
+Given some categorized constants in the form "category: constant_1; constant_2; ...; constant_n" and some predicates about the
+    relation among different categories of constants, write ASP (Answer Set Programming) rules to generate the search space of possible relations.
+    
+    Constants:
+     employee: "Bonita"; "Yvette"; "Tabitha".
+                    price: 225; 275; 325.
+                    wood_type: "ash"; "poplar"; "sandalwood".    
+                
+
+    Predicates:
+    
+                    % The categories in Constants include employee, price, and wood_type. We use different variables E, P, and W to represent employee, price, and wood_type.
+                    % We match an employee E with price P and wood type W, where E belongs to employee, P belongs to price, and W belongs to wood_type.
+                    match(E, P, W)
+                    
+
+    ASP Rules:
+    % Define the constants in each category.
+    employee("Bonita"; "Yvette"; "Tabitha").
+    price(225; 275; 325).
+    wood_type("ash"; "poplar"; "sandalwood").
+    % For each employee E, it matches with exactly 1 price P and 1 wood type W.
+    {match(E, P, W): price(P), wood_type(W)}=1 :- employee(E).
+
+    Constants: 
+    agent: "A"; "Q"; "H"; "K"; "X".
+                    relation: "bottom-right"; "right"; "left"; "same horizontal plane". 
+    
+    Predicates: 
+    % The categories in Constants include agent and relation. We use different variables A, Q, H, K, X, and R to represent agent and relation.
+% We define the relation between agent A and agent Q as R1, the relation between agent H and agent K as R2, and the relation between agent X and agent K as R3.
+relation(R1, A, Q)
+relation(R2, H, K)
+relation(R3, X, K) 
+    
+    ASP Rules: /n% Define the constants in each category.
+agent("A"; "Q"; "H"; "K"; "X").
+relation("bottom-right"; "right"; "left"; "same horizontal plane").
+
+% Define the relations between agents.
+{relation(R1, A, Q): relation(R1), agent(A), agent(Q)}=1.
+{relation(R2, H, K): relation(R2), agent(H), agent(K)}=1.
+{relation(R3, X, K): relation(R3), agent(X), agent(K)}=1.

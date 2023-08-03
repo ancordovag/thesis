@@ -1,0 +1,47 @@
+Problem Description.
+
+The task of this project is to develop an ASP encoding for the Seek Numbers puzzle.
+
+Below you can see a Seek Numbers puzzle on the left, and its solution on the right.
+Image
+
+Given a square grid as shown on the left side, the goal is to construct a directed path by linking horizontally or vertically adjacent cells such that:
+
+    the path starts at the cell marked with a white circle and ends at the cell marked with a black circle,
+    the path traverses each remaining cell of the square grid without ever crossing or intersecting itself,
+    between a cell with a (positive) number and the next cell with a number or the cell marked with a black circle, respectively, the path bends exactly as often as the number in the first cell indicates, and
+    the path does not bend between the cell marked with a white circle and the first cell with a number.
+
+The only path satisfying these conditions for the Seek Numbers puzzle on the left is shown on the right.
+
+To familiarize yourself with the Seek Numbers puzzle, you can try the puzzle online.
+
+
+Representation in ASP.
+
+The square grid is represented by facts of the following predicates:
+
+cell(X,Y).   % the cell (X,Y) belongs to the grid
+first(X,Y).  % the first cell of the path (marked with a white circle) is (X,Y)
+final(X,Y).  % the final cell of the path (marked with a black circle) is (X,Y)
+hint(X,Y,N). % the cell (X,Y) contains the hint number N
+
+Every problem instance contains exactly one fact over first/2 and one fact over final/2.
+
+The example shown before is represented by the following facts:
+
+cell(1..3,1..3).
+first(1,1).
+final(3,3).
+hint(2,1,2).
+hint(2,2,2).
+
+The solution is represented by atoms of predicate path/4:
+
+path(X1,Y1,X2,Y2). % the path has an edge between the cells (X1,Y1) and (X2,Y2)
+
+For instance, the solution of the example consists of the following atoms:
+
+path(1,1,2,1) path(2,1,3,1) path(3,1,3,2) path(3,2,2,2)
+path(2,2,1,2) path(1,2,1,3) path(1,3,2,3) path(2,3,3,3)
+

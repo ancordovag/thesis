@@ -1,0 +1,36 @@
+Given some categorized constants in the form "category: constant_1; constant_2; ...; constant_n" and some predicates about the
+    relation among different categories of constants, write ASP (Answer Set Programming) rules to generate the search space of possible relations.
+    
+    Constants:
+     employee: "Bonita"; "Yvette"; "Tabitha".
+                    price: 225; 275; 325.
+                    wood_type: "ash"; "poplar"; "sandalwood".    
+                
+
+    Predicates:
+    
+                    % The categories in Constants include employee, price, and wood_type. We use different variables E, P, and W to represent employee, price, and wood_type.
+                    % We match an employee E with price P and wood type W, where E belongs to employee, P belongs to price, and W belongs to wood_type.
+                    match(E, P, W)
+                    
+
+    ASP Rules:
+    % Define the constants in each category.
+    employee("Bonita"; "Yvette"; "Tabitha").
+    price(225; 275; 325).
+    wood_type("ash"; "poplar"; "sandalwood").
+    % For each employee E, it matches with exactly 1 price P and 1 wood type W.
+    {match(E, P, W): price(P), wood_type(W)}=1 :- employee(E).
+
+    Constants: 
+    object: "A"; "Z"; "H"; "E"; "M". 
+    
+    Predicates: 
+    % The categories in Constants include object. We use different variables O1 and O2 to represent object.
+% We define the relation between two objects O1 and O2, where O1 and O2 belong to object.
+relation(O1, O2) 
+    
+    ASP Rules: /n% Define the constants in the object category.
+object("A"; "Z"; "H"; "E"; "M").
+% For each object O1, it can have a relation with any other object O2.
+relation(O1, O2) :- object(O1), object(O2), O1 != O2.

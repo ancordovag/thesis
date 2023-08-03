@@ -1,0 +1,49 @@
+Given some categorized constants in the form "category: constant_1; constant_2; ...; constant_n" and some predicates about the
+    relation among different categories of constants, write ASP (Answer Set Programming) rules to generate the search space of possible relations.
+    
+    Constants:
+     employee: "Bonita"; "Yvette"; "Tabitha".
+                                price: 225; 275; 325.
+                                wood_type: "ash"; "poplar"; "sandalwood".
+                
+                            
+
+    Predicates:
+    
+                    % The categories in Constants include employee, price, and wood_type. We use different variables E, P, and W to represent employee, price, and wood_type.
+                    % We match an employee E with price P and wood type W, where E belongs to employee, P belongs to price, and W belongs to wood_type.
+                    match(E, P, W)
+                    
+
+    ASP Rules:
+    % Define the constants in each category.
+    employee("Bonita"; "Yvette"; "Tabitha").
+    price(225; 275; 325).
+    wood_type("ash"; "poplar"; "sandalwood").
+    % For each employee E, it matches with exactly 1 price P and 1 wood type W.
+    {match(E, P, W): price(P), wood_type(W)}=1 :- employee(E).
+
+    Constants: 
+    node: 1; 2; 3; 4; 5; 6.
+                                edge: 1; 2; 3; ...; 17.
+                                color: "red"; "green"; "blue". 
+    
+    Predicates: 
+    % The categories in Constants include node, edge, and color. We use different variables N, E, and C to represent node, edge, and color.
+% We assign a color C to a node N, where N belongs to node and C belongs to color.
+assign_color(N, C)
+
+% The categories in Constants include node and edge. We use different variables N1 and N2 to represent node.
+% We connect node N1 with node N2, where N1 and N2 belong to node.
+connect(N1, N2) 
+    
+    ASP Rules: /n% Define the constants in each category.
+node(1; 2; 3; 4; 5; 6).
+edge(1; 2; 3; ...; 17).
+color("red"; "green"; "blue").
+
+% For each node N, assign exactly 1 color C.
+{assign_color(N, C): color(C)}=1 :- node(N).
+
+% For each pair of nodes N1 and N2, they are connected by exactly 1 edge.
+{connect(N1, N2): edge(E)}=1 :- node(N1), node(N2), N1 != N2.

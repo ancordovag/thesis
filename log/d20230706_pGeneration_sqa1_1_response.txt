@@ -1,0 +1,40 @@
+Given some categorized constants in the form "category: constant_1; constant_2; ...; constant_n" and some predicates about the
+    relation among different categories of constants, write ASP (Answer Set Programming) rules to generate the search space of possible relations.
+    
+    Constants:
+     employee: "Bonita"; "Yvette"; "Tabitha".
+                    price: 225; 275; 325.
+                    wood_type: "ash"; "poplar"; "sandalwood".    
+                
+
+    Predicates:
+    
+                    % The categories in Constants include employee, price, and wood_type. We use different variables E, P, and W to represent employee, price, and wood_type.
+                    % We match an employee E with price P and wood type W, where E belongs to employee, P belongs to price, and W belongs to wood_type.
+                    match(E, P, W)
+                    
+
+    ASP Rules:
+    % Define the constants in each category.
+    employee("Bonita"; "Yvette"; "Tabitha").
+    price(225; 275; 325).
+    wood_type("ash"; "poplar"; "sandalwood").
+    % For each employee E, it matches with exactly 1 price P and 1 wood type W.
+    {match(E, P, W): price(P), wood_type(W)}=1 :- employee(E).
+
+    Constants: 
+    position: "6:00"; "6 o'clock".
+    agent: "A"; "D"; "G"; "R".
+    relation: "over there"; "directly below". 
+    
+    Predicates: 
+    % The categories in Constants include position, agent, and relation. We use different variables P, A, and R to represent position, agent, and relation.
+% We define the relation between agent G and agent R, where G belongs to agent and R belongs to agent.
+relation(G, R) 
+    
+    ASP Rules: /n% Define the constants in each category.
+position("6:00"; "6 o'clock").
+agent("A"; "D"; "G"; "R").
+relation("over there"; "directly below").
+% For each agent G, it has a relation with exactly 1 agent R.
+{relation(G, R): agent(R)}=1 :- agent(G).
