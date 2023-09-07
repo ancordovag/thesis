@@ -1,0 +1,303 @@
+\documentclass[a4paper,12pt]{article}
+
+%\usepackage[ngerman]{babel}
+\usepackage[utf8]{inputenc}
+%\usepackage{listings}
+%\lstset{basicstyle=\ttfamily\small}
+%\usepackage{verbatim}
+%\usepackage{dingbat}
+\usepackage{amsmath,amssymb}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{exercises}
+\usepackage{../../../asp}
+
+\sloppy
+
+\begin{document}
+\begin{PraktikumsAufgabe}{3}{(Minotaur)}
+\paragraph{Problem Description.}
+%
+The task of this project is to solve the Minotaur puzzle using ASP.
+You are in a labyrinth 
+and the goal of the game is to go from a start field to a goal field 
+without being eaten by the Minotaur.
+The labyrinth has walls, and neither you nor the Minotaur can go through them.
+At every step you can move one field in any direction: up, down, left or right. 
+The Minotaur is faster than you, but luckily he is a bit foolish.
+He can move two fields every step, but his movements are determined by his and our position: there is no choice for him.
+He will try to move right or left to become closer to you.
+If that is not possible, he will try to move up and down to become closer.
+If this is also not possible, the Minotaur will not move.
+In this way the Minotaur may move in a step first in one direction (e.g., up) and then in another direction (e.g., left).
+Typically, to solve a puzzle you have to trap the Minotaur between the walls of the labyrinth, 
+so that you can run free to the goal. 
+You can play the game at:
+\url{http://www.janko.at/Spiele/Minotaurus}.
+It is fun and it will help you to get used to the rules.
+
+\begin{figure}[h]
+\begin{center}
+\vspace{2mm}
+\begin{tabular}{|@{}p{5mm}@{}@{}|@{}p{5mm}@{}|@{}p{5mm}@{}|@{}l}
+% \multicolumn{1}{@{}c@{}}{}% & & \rule[-1.5mm]{5mm}{5mm} & \hfill & \rule[-1.5mm]{5mm}{5mm} 
+% \\
+\cline{1-3}
+ & $\,$M & & $\,$\textsf{3}
+\\\cline{1-3}
+ & \rule[-1.5mm]{5mm}{1mm}\hspace*{-5mm}\rule[3mm]{5mm}{1mm}\hspace*{-1mm}\rule[-1.5mm]{1mm}{5mm} & $\:$G & $\,$\textsf{2}
+\\\cline{1-3}
+ & $\;$S & & $\,$\textsf{1}
+% \\\cline{1-6}
+%  & \rule[-1.5mm]{5mm}{5mm} & \rule[-1.5mm]{5mm}{5mm} & \rule[-1.5mm]{5mm}{5mm} & \rule[-1.5mm]{5mm}{5mm} & & $\,$\textsf{3}
+% \\\cline{1-6}
+%  $\rightarrow$ & \rule[-1.5mm]{5mm}{5mm} & & & \rule[-1.5mm]{5mm}{5mm} & & $\,$\textsf{2}
+% \\\cline{1-6}
+%  & & & \rule[-1.5mm]{5mm}{5mm} & \rule[-1.5mm]{5mm}{5mm} & & $\,$\textsf{1}
+\\\cline{1-3}
+\multicolumn{1}{@{}c@{}}{\textsf{1}} & \multicolumn{1}{@{}c@{}}{\textsf{2}} & \multicolumn{1}{@{}c@{}}{\textsf{3}} 
+\end{tabular}
+\qquad
+\begin{tabular}{|@{}p{5mm}@{}@{}|@{}p{5mm}@{}|@{}p{5mm}@{}|@{}l}
+% \multicolumn{1}{@{}c@{}}{}% & & \rule[-1.5mm]{5mm}{5mm} & \hfill & \rule[-1.5mm]{5mm}{5mm} 
+% \\
+\cline{1-3}
+ & & & $\,$\textsf{3}
+\\\cline{1-3}
+ $\,$M & \rule[-1.5mm]{5mm}{1mm}\hspace*{-5mm}\rule[3mm]{5mm}{1mm}\hspace*{-1mm}\rule[-1.5mm]{1mm}{5mm} & $\:$G & $\,$\textsf{2}
+\\\cline{1-3}
+ $\;$S & & & $\,$\textsf{1}
+% \\\cline{1-6}
+%  & \rule[-1.5mm]{5mm}{5mm} & \rule[-1.5mm]{5mm}{5mm} & \rule[-1.5mm]{5mm}{5mm} & \rule[-1.5mm]{5mm}{5mm} & & $\,$\textsf{3}
+% \\\cline{1-6}
+%  $\rightarrow$ & \rule[-1.5mm]{5mm}{5mm} & & & \rule[-1.5mm]{5mm}{5mm} & & $\,$\textsf{2}
+% \\\cline{1-6}
+%  & & & \rule[-1.5mm]{5mm}{5mm} & \rule[-1.5mm]{5mm}{5mm} & & $\,$\textsf{1}
+\\\cline{1-3}
+\multicolumn{1}{@{}c@{}}{\textsf{1}} & \multicolumn{1}{@{}c@{}}{\textsf{2}} & \multicolumn{1}{@{}c@{}}{\textsf{3}} 
+\end{tabular}
+\qquad
+\begin{tabular}{|@{}p{5mm}@{}@{}|@{}p{5mm}@{}|@{}p{5mm}@{}|@{}l}
+% \multicolumn{1}{@{}c@{}}{}% & & \rule[-1.5mm]{5mm}{5mm} & \hfill & \rule[-1.5mm]{5mm}{5mm} 
+% \\
+\cline{1-3}
+ & & & $\,$\textsf{3}
+\\\cline{1-3}
+ & \rule[-1.5mm]{5mm}{1mm}\hspace*{-5mm}\rule[3mm]{5mm}{1mm}\hspace*{-1mm}\rule[-1.5mm]{1mm}{5mm}\hspace*{-4.85mm}M  & $\:$G & $\,$\textsf{2}
+\\\cline{1-3}
+ & $\;$S & & $\,$\textsf{1}
+% \\\cline{1-6}
+%  & \rule[-1.5mm]{5mm}{5mm} & \rule[-1.5mm]{5mm}{5mm} & \rule[-1.5mm]{5mm}{5mm} & \rule[-1.5mm]{5mm}{5mm} & & $\,$\textsf{3}
+% \\\cline{1-6}
+%  $\rightarrow$ & \rule[-1.5mm]{5mm}{5mm} & & & \rule[-1.5mm]{5mm}{5mm} & & $\,$\textsf{2}
+% \\\cline{1-6}
+%  & & & \rule[-1.5mm]{5mm}{5mm} & \rule[-1.5mm]{5mm}{5mm} & & $\,$\textsf{1}
+\\\cline{1-3}
+\multicolumn{1}{@{}c@{}}{\textsf{1}} & \multicolumn{1}{@{}c@{}}{\textsf{2}} & \multicolumn{1}{@{}c@{}}{\textsf{3}} 
+\end{tabular}
+\qquad
+\begin{tabular}{|@{}p{5mm}@{}@{}|@{}p{5mm}@{}|@{}p{5mm}@{}|@{}l}
+% \multicolumn{1}{@{}c@{}}{}% & & \rule[-1.5mm]{5mm}{5mm} & \hfill & \rule[-1.5mm]{5mm}{5mm} 
+% \\
+\cline{1-3}
+ & & & $\,$\textsf{3}
+\\\cline{1-3}
+ & \rule[-1.5mm]{5mm}{1mm}\hspace*{-5mm}\rule[3mm]{5mm}{1mm}\hspace*{-1mm}\rule[-1.5mm]{1mm}{5mm}\hspace*{-4.85mm}M  & $\:$G & $\,$\textsf{2}
+\\\cline{1-3}
+ & & $\;$S & $\,$\textsf{1}
+% \\\cline{1-6}
+%  & \rule[-1.5mm]{5mm}{5mm} & \rule[-1.5mm]{5mm}{5mm} & \rule[-1.5mm]{5mm}{5mm} & \rule[-1.5mm]{5mm}{5mm} & & $\,$\textsf{3}
+% \\\cline{1-6}
+%  $\rightarrow$ & \rule[-1.5mm]{5mm}{5mm} & & & \rule[-1.5mm]{5mm}{5mm} & & $\,$\textsf{2}
+% \\\cline{1-6}
+%  & & & \rule[-1.5mm]{5mm}{5mm} & \rule[-1.5mm]{5mm}{5mm} & & $\,$\textsf{1}
+\\\cline{1-3}
+\multicolumn{1}{@{}c@{}}{\textsf{1}} & \multicolumn{1}{@{}c@{}}{\textsf{2}} & \multicolumn{1}{@{}c@{}}{\textsf{3}} 
+\end{tabular}
+\qquad
+\begin{tabular}{|@{}p{5mm}@{}@{}|@{}p{5mm}@{}|@{}p{5mm}@{}|@{}l}
+% \multicolumn{1}{@{}c@{}}{}% & & \rule[-1.5mm]{5mm}{5mm} & \hfill & \rule[-1.5mm]{5mm}{5mm} 
+% \\
+\cline{1-3}
+ & & & $\,$\textsf{3}
+\\\cline{1-3}
+ & \rule[-1.5mm]{5mm}{1mm}\hspace*{-5mm}\rule[3mm]{5mm}{1mm}\hspace*{-1mm}\rule[-1.5mm]{1mm}{5mm}\hspace*{-4.85mm}M  & $\:$G & $\,$\textsf{2}
+\\\cline{1-3}
+ & & & $\,$\textsf{1}
+% \\\cline{1-6}
+%  & \rule[-1.5mm]{5mm}{5mm} & \rule[-1.5mm]{5mm}{5mm} & \rule[-1.5mm]{5mm}{5mm} & \rule[-1.5mm]{5mm}{5mm} & & $\,$\textsf{3}
+% \\\cline{1-6}
+%  $\rightarrow$ & \rule[-1.5mm]{5mm}{5mm} & & & \rule[-1.5mm]{5mm}{5mm} & & $\,$\textsf{2}
+% \\\cline{1-6}
+%  & & & \rule[-1.5mm]{5mm}{5mm} & \rule[-1.5mm]{5mm}{5mm} & & $\,$\textsf{1}
+\\\cline{1-3}
+\multicolumn{1}{@{}c@{}}{\textsf{1}} & \multicolumn{1}{@{}c@{}}{\textsf{2}} & \multicolumn{1}{@{}c@{}}{\textsf{3}} 
+\end{tabular}
+\end{center}
+\vspace*{-6mm}
+\caption{Minotaur Game. 
+        %game with start field $(\textsf{2},\textsf{1})$,
+        %goal field $(\textsf{3},\textsf{2})$
+        %and the Minotaur at $(\textsf{2},\textsf{3})$.
+        \label{fig:laby}}
+\end{figure}
+
+\noindent
+Figure~\ref{fig:laby} represents a game with start field 
+$(\textsf{2},\textsf{1})$, 
+goal field 
+$(\textsf{3},\textsf{2})$ and the Minotaur at
+$(\textsf{2},\textsf{3})$.
+You can scape from the Minotaur and reach the goal 
+with these movements:
+\begin{enumerate}
+\item Go from the start field $(\textsf{2},\textsf{1})$ to $(\textsf{1},\textsf{1})$.
+      The Minotaur follows you first to the left and then down to $(\textsf{1},\textsf{2})$.
+\item Now move back to the field $(\textsf{2},\textsf{1})$, and the Minotaur is trapped!
+      He moves to the right to become closer, going to the field $(\textsf{2},\textsf{2})$, 
+      and then he cannot move any more: 
+      to come closer he would have to move down, 
+      but there is a wall in between.
+\item Now move right to $(\textsf{3},\textsf{1})$
+      and the Minotaur remains trapped: 
+      he could come closer going right or down, but there are walls there.
+\item Finally you can move up safely to the goal field $(\textsf{3},\textsf{2})$, 
+      while the Minotaur stays at $(\textsf{2},\textsf{2})$.
+\end{enumerate}
+Observe how the Minotaur first tries to shorten the horizontal distance, 
+and only when that is not possible he tries to shorten the vertical gap.
+If none of these is possible, the Minotaur remains at the same position.
+The movements of the Minotaur are thus completely deterministic.
+
+You win the game if you move from the initial to the goal field
+and the Minotaur never moves to the same field where you are.
+
+\paragraph{Representation in ASP.}
+The labyrinth, the initial situation 
+and the maximal number of steps are represented by facts of the following predicates:
+\begin{verbatim}
+  field(X,Y).         % the field [X,Y] belongs to the labyrinth
+  start(X,Y).         % the start field is [X,Y]
+  goal(X,Y).          % the goal  field is [X,Y]
+  mino(X,Y).          % the Minotaur starts at [X,Y]
+  wall(X,Y,XX,YY).    % there is a wall between [X,Y] and [XX,YY]
+  maxsteps(S).        % there are at most S steps to reach the goal
+\end{verbatim}
+Facts of the predicate \code{wall/4} always have the form 
+\code{wall(X,Y,X,Y+1)} or \code{wall(X,Y,X+1,Y)}, 
+in this way the walls refer to adjacent horizontal or vertical fields, 
+and this reference is unique for every possible wall.
+%form \code{wall(X,Y,XX,YY)} it holds that: 
+%\code{X}${}\leq{}$\code{XX}, 
+%\code{Y}${}\leq{}$\code{YY} and
+%$($\code{XX}$-$\code{X}$)+($\code{YY}$-$\code{Y}$)=1$,
+%so $($\code{X}$,$\code{Y}$)$ and $($\code{XX}$,$\code{YY}$)$
+%are adjacent horizontal or vertical fields, 
+%and exactly one of \code{XX} or \code{YY} is 
+%one unit higher than \code{X} or \code{Y}, respectively.
+The game of figure~\ref{fig:laby} with a limit of $10$ steps can be 
+described with the following facts:
+\begin{verbatim}
+  field(1..3,1..3).
+  start(2,1).
+  goal(3,2).
+  mino(2,3).
+  wall(2,1,2,2). wall(2,2,3,2). wall(2,2,2,3).
+  maxsteps(10).
+\end{verbatim}
+
+\noindent
+If there is a limit of $S$ steps,
+then a solution is a sequence of at most $S+1$ positions of a winning game. 
+It is represented by facts of the predicate $\code{at/3}$:
+\vspace{-1.5mm}
+\begin{verbatim}
+  at(X,Y,S).          % we are at field [X,Y] at step S
+\end{verbatim}
+\vspace{-1mm}
+The facts of a solution should represent a sequence.
+This means that there must be no gaps between the steps, 
+i.e., if there is a fact $\code{at(X,Y,S)}$ for $\code{S}>0$ then there must be a fact 
+$\code{at(XX,YY,S-1)}$ for some $\code{XX}$ and $\code{YY}$.
+We represent the solution in figure~\ref{fig:laby} by the following atoms: 
+\vspace{-1.5mm}
+\begin{verbatim}
+  at(2,1,0) at(1,1,1) at(2,1,2) at(3,1,3) at(3,2,4)
+\end{verbatim}
+\vspace{-1mm}
+Observe how at step $0$ the position coincides with the start field, 
+and at the last step $4$ the position coincides with the goal field.
+If the limit of steps is $S$ the sequence of positions may go from $0$ to $S+1$, 
+but it may be shorter, as in the example.
+We say that a solution is \emph{optimal} if it goes from $0$ to $T$,
+and for every $U < T$ there is no solution that goes from $0$ to $U$.
+
+
+\paragraph{Task.}
+%
+Write an ASP encoding such that given an instance, 
+the stable models of the encoding and the instance
+correspond to the \emph{optimal} solutions of the problem represented by the instance.
+To compute optimal solutions, use the optimize statements of \texttt{gringo}.
+The two fastest encodings will get \textbf{1 bonus} point.
+
+\paragraph{Framework.}
+
+\noindent
+In the
+{\texttt{mino.zip}}
+archive at Moodle you will find some example instances with their solutions.
+You have to submit a file named \texttt{mino.lp} that contains the following line 
+(and no more \texttt{\#show} statements)
+so that in the output only the atoms of predicate \texttt{at/3} appear:
+%\footnote{These instructions hide all atoms that are not part of the solution representation.}%
+\vspace{-1.5mm}
+\begin{verbatim}
+#show at/3.
+\end{verbatim}
+\vspace{-1mm}
+
+\noindent
+
+\paragraph{Formalities.}
+%
+You can work on the project alone or in groups of two people.
+Different groups have to submit different solutions, 
+in case of plagiarism all groups involved will fail the project.
+Please submit your encoding by \textbf{Friday 19th of December, 2014} via
+\href{https://yeti.haiti.cs.uni-potsdam.de}{YETI}
+(All group members have to create a YETI account!).
+Be sure to submit your encoding in a file named \code{mino.lp}
+containing only lowercase letters.
+
+\noindent
+We will test your encoding with the provided instances as well as additional instances.
+Your encoding has to find the correct solutions for all instances.
+This will be tested automatically by YETI after you uploaded the encoding (with a slight delay).
+If your solution is not correct then YETI will display an error message.
+Please correct any errors that occur on your own or contact us if you get stuck.
+
+\paragraph{Tips:}
+\begin{itemize}
+\item Commands to find all optimal stable models look as follows:%
+\vspace{-1.5mm}%
+\begin{verbatim}
+$  gringo-4 mino.lp example.lp | clasp3 --opt-mode=optN
+\end{verbatim}
+\vspace{-1mm}
+With option \code{--quiet=1} you can avoid printing non optimal solutions.
+More \code{clasp3} options can be found using option \code{--help=3}.
+\item If you are stuck you can contact us. We will do out best to answer all your questions.
+      You can send us questions and remarks via 
+      \href{http://moodle.cs.uni-potsdam.de/course/view.php?id=39}{Moodle} (forum/wiki)
+      or send them via mail to 
+      \href{mailto:asp@lists.cs.uni-potsdam.de}{\texttt{asp@lists.cs.uni-potsdam.de}}.
+\item Start as soon as possible to avoid running out of time.
+      (However, if you still realize that you have problems making it before the deadline,
+       please contact us instead of copying another solution).
+% \item Behalten Sie Ihren Quelltext für sich.
+%       Sie helfen Ihren Kommilitonen nicht, wenn Sie Ihren Quelltext weitergeben, da das Nachvollziehen eines fremden Encodings schwieriger ist als ein eigenes zu entwerfen.
+\end{itemize}
+
+\end{PraktikumsAufgabe}
+\end{document}

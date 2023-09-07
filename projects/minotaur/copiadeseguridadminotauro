@@ -1,0 +1,69 @@
+% Please insert the names and email addresses of the group members:
+% Andrés Alejandro Córdova Galleguillos	
+% cordovagalle@uni-potsdam.de
+
+%
+% Guess solution candidates
+%
+time(1..H) :- maxsteps(H).
+diff(1,0). diff(0,1). diff(-1,0). diff(0,-1).
+neighbor(X1,Y1,X2,Y2) :- field(X1,Y1), field(X2,Y2), diff(DX,DY), |X2-X1| = |DX|, |Y2-Y1| = |DY|, not wall(X1,Y1,X2,Y2), not wall(X2,Y2,X1,Y1).
+
+% Movements of Teseo
+% Teseo starts at the start point
+%at(X,Y,0) :- start(X,Y).
+%{at(X1,Y1,T)} 1 :-  neighbor(X,Y,X1,Y1), at(X,Y,T-1), time(T), not goal(X,Y).
+%{at(X,Y,T+1)} :- at(X,Y,T), time(T), not goal(X,Y).
+at(1,2,0). at(1,3,1). at(2,3,2). at(3,3,3). at(4,3,4). at(4,2,5). at(4,1,6). at(4,2,7). 
+at(4,3,8). at(3,3,9). at(2,3,10). at(1,3,11). at(1,2,12). at(1,1,13).
+
+% Movement of Minotaur
+% The minotaur starts at its start point
+mino_at(X,Y,0,2) :- mino(X,Y).
+% First case: Teseo is at the left or the right
+move(-1,0,T,1):- at(X,Y,T), mino_at(A,B,T-1,2), X<A, neighbor(A,B,A-1,B).
+move(1,0,T,1):- at(X,Y,T), mino_at(A,B,T-1,2), X>A, neighbor(A,B,A+1,B).
+move(-1,0,T,2):- at(X,Y,T), mino_at(A,B,T,1), X<A, neighbor(A,B,A-1,B).
+move(1,0,T,2):- at(X,Y,T), mino_at(A,B,T,1), X>A, neighbor(A,B,A+1,B).
+
+% Second case: Teseo is up or down
+move(0,1,T,1):- at(X,Y,T), mino_at(A,B,T-1,2), Y>B, neighbor(A,B,A,B+1), not move(DX,0,T,1), |DX|>0, diff(DX,DY).
+move(0,-1,T,1):- at(X,Y,T), mino_at(A,B,T-1,2), Y<B, neighbor(A,B,A,B-1), not move(DX,0,T,1), |DX|>0, diff(DX,DY).
+move(0,1,T,2):- at(X,Y,T), mino_at(A,B,T,1), Y>B, neighbor(A,B,A,B+1), not move(DX,0,T,2), |DX|>0, diff(DX,DY).
+move(0,-1,T,2):- at(X,Y,T), mino_at(A,B,T,1), Y<B, neighbor(A,B,A,B-1), not move(DX,0,T,2), |DX|>0, diff(DX,DY).
+
+%Third case: Minotaur reaches Teseo
+move(0,0,T,1):- at(X,Y,T), mino_at(X,Y,T-1,2).
+move(0,0,T,2):- at(X,Y,T), mino_at(X,Y,T,1).
+
+% move_minotaure in the proper direction
+mino_at(A+DX,B+DY,T,2) :- mino_at(A,B,T,1), move(DX,DY,T,2).
+mino_at(A,B,T,2) :- mino_at(A,B,T,1), not move(DX,DY,T,2), diff(DX,DY).
+mino_at(A+DX,B+DY,T+1,1) :- mino_at(A,B,T,2), move(DX,DY,T+1,1).
+mino_at(A,B,T+1,1) :- mino_at(A,B,T,2), not move(DX,DY,T+1,1), diff(DX,DY).
+
+mino(X,Y,T) :- mino_at(X,Y,T,2).
+
+%
+% Check solution candidates
+%
+%It cannot be possible that Teseo is in two cells at the same time
+:- at(X,Y,T), at(A,B,T), (X,Y) < (A,B).
+% Teseo reahes the goal
+:- not at(X,Y,_), goal(X,Y).
+gotcha(X,Y,T) :- at(X,Y,T), mino_at(X,Y,T,_).
+:- gotcha(X,Y,T).
+
+%
+% Optimize solutions
+%
+#minimize{1,X,Y,T: at(X,Y,T)}.
+
+
+%
+% Display
+%
+%#show move/4.
+%#show mino_at/4.
+%#show mino/3.
+#show at/3.

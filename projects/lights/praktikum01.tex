@@ -1,0 +1,250 @@
+\documentclass[a4paper,12pt,ngerman]{article}
+
+\usepackage[ngerman]{babel}
+\usepackage[utf8]{inputenc}
+%\usepackage{listings}
+%\lstset{basicstyle=\ttfamily\small}
+%\usepackage{verbatim}
+%\usepackage{dingbat}
+\usepackage{graphics}
+\usepackage[dvipsnames,usenames]{color}
+\usepackage{amsmath,amssymb}
+\usepackage{exercises}
+\usepackage{../../../asp}
+\usepackage{url}
+\usepackage{hyperref}
+
+\sloppy
+\DeclareFontFamily{U}{bulb}{}
+\DeclareFontShape{U}{bulb}{m}{n}{<-> lightbulb10}{}
+\newcommand{\lightbulb}{{\usefont{U}{bulb}{m}{n}A}}
+
+\begin{document}
+\begin{PraktikumsAufgabe}{1}{(Lights)}
+\vspace*{-4mm}
+\paragraph{Problembeschreibung.}
+%
+%
+In dieser Praktikumsaufgabe sollen Sie ein Logikpuzzle,
+bei dem ein zweidimensionales Spielfeld mit Lichtern ausgeleuchtet werden soll,
+mit einem ASP-Encoding l\"osen.
+Das Spielfeld ist ein quadratisches Gitter, 
+wobei einige Zellen vorgegeben sind.
+Die vorgegebenen Zellen sind entweder leer oder enthalten 
+eine ganze Zahl zwischen $0$ und $4$.
+Das Ziel des Puzzles besteht darin,
+Lichter so auf den nicht vorgegebenen Zellen zu platzieren,
+dass jede nicht vorgegebene Zelle von (mindestens) einem Licht
+horizontal oder vertikal beleuchtet wird,
+wobei
+Lichtstrahlen nicht durch vorgegebene (leere
+oder eine Zahl enthaltende) Zellen hindurchleuchten.
+Zus\"atzliche Randbedingungen bestehen darin,
+dass sich keine zwei Lichter gegenseitig beleuchten d\"urfen
+und dass f\"ur jede Zelle mit einer Zahl~$n$ genau $n$ horizontal
+oder vertikal angrenzende Zellen jeweils ein Licht enthalten m\"ussen.
+%
+\begin{figure}[h]
+\begin{center}
+%\vspace*{-2mm}
+\begin{tabular}{c@{~}|@{}p{5mm}@{}|@{}p{5mm}@{}|@{}p{5mm}@{}|@{}p{5mm}@{}|@{}p{5mm}@{}|@{}p{5mm}@{}|@{}p{5mm}@{}|l}
+% & \multicolumn{1}{@{}c@{}}{} & \multicolumn{1}{@{}c@{}}{\raisebox{-2pt}{4}}
+% \\
+\cline{2-7}
+\textsf{1} & & \hspace*{5.1mm}{\color{Tan}\rule[-1.6mm]{5mm}{5mm}} & ~$1$ & \hspace*{0.0mm}{\color{Tan}\rule[-1.6mm]{5mm}{5mm}} & & 
+\\\cline{2-7}
+\textsf{2} & & & & & &
+\\\cline{2-7}
+\textsf{3} & \hspace*{5.1mm}{\color{Tan}\rule[-1.6mm]{5mm}{5mm}} & ~$0 $ & & & \hspace*{0.0mm}{\color{Tan}\rule[-1.6mm]{5mm}{5mm}} & 
+\\\cline{2-7}
+\textsf{4} & & \hspace*{0.0mm}{\color{Tan}\rule[-1.6mm]{5mm}{5mm}} & \hspace*{10.1mm}{\color{Tan}\rule[-1.6mm]{5mm}{5mm}} & & ~$2$ & 
+\\\cline{2-7}
+\textsf{5} & & & & & &
+\\\cline{2-7}
+\textsf{6} & \hspace*{10.1mm}{\color{Tan}\rule[-1.6mm]{5mm}{5mm}} & \hspace*{10.1mm}{\color{Tan}\rule[-1.6mm]{5mm}{5mm}} & ~$0$ & ~$1$ & & 
+\\\cline{2-7}
+% & \multicolumn{1}{@{}c@{}}{} & \multicolumn{1}{@{}c@{}}{} & \multicolumn{1}{@{}c@{}}{2} & \multicolumn{1}{@{}c@{}}{2} & \multicolumn{1}{@{}c@{}}{}
+% \\[-2pt]
+\multicolumn{1}{@{}c@{}}{} &
+\multicolumn{1}{@{}c@{}}{\textsf{1}} & \multicolumn{1}{@{}c@{}}{\textsf{2}} & \multicolumn{1}{@{}c@{}}{\textsf{3}} & \multicolumn{1}{@{}c@{}}{\textsf{4}} & \multicolumn{1}{@{}c@{}}{\textsf{5}} & \multicolumn{1}{@{}c@{}}{\textsf{6}} 
+\end{tabular}
+\hspace{2cm}
+\begin{tabular}{c@{~}|@{}p{5mm}@{}|@{}p{5mm}@{}|@{}p{5mm}@{}|@{}p{5mm}@{}|@{}p{5mm}@{}|@{}p{5mm}@{}|@{}p{5mm}@{}|l}
+% & \multicolumn{1}{@{}c@{}}{} & \multicolumn{1}{@{}c@{}}{\raisebox{-2pt}{4}}
+% \\
+\cline{2-7}
+\textsf{1} & ~\lightbulb & \hspace*{5.1mm}{\color{Tan}\rule[-1.6mm]{5mm}{5mm}} & ~$1$ & \hspace*{0.0mm}{\color{Tan}\rule[-1.6mm]{5mm}{5mm}} & ~\lightbulb & 
+\\\cline{2-7}
+\textsf{2} & & & ~\lightbulb & & &
+\\\cline{2-7}
+\textsf{3} & \hspace*{5.1mm}{\color{Tan}\rule[-1.6mm]{5mm}{5mm}} & ~$0 $ & & & \hspace*{0.0mm}{\color{Tan}\rule[-1.6mm]{5mm}{5mm}} & 
+\\\cline{2-7}
+\textsf{4} & & \hspace*{0.0mm}{\color{Tan}\rule[-1.6mm]{5mm}{5mm}} & \hspace*{10.1mm}{\color{Tan}\rule[-1.6mm]{5mm}{5mm}} & ~\lightbulb & ~$2$ & ~\lightbulb
+\\\cline{2-7}
+\textsf{5} & & ~\lightbulb & & & &
+\\\cline{2-7}
+\textsf{6} & \hspace*{10.1mm}{\color{Tan}\rule[-1.6mm]{5mm}{5mm}} & \hspace*{10.1mm}{\color{Tan}\rule[-1.6mm]{5mm}{5mm}} & ~$0$ & ~$1$ & ~\lightbulb & 
+\\\cline{2-7}
+% & \multicolumn{1}{@{}c@{}}{} & \multicolumn{1}{@{}c@{}}{} & \multicolumn{1}{@{}c@{}}{2} & \multicolumn{1}{@{}c@{}}{2} & \multicolumn{1}{@{}c@{}}{}
+% \\[-2pt]
+\multicolumn{1}{@{}c@{}}{} &
+\multicolumn{1}{@{}c@{}}{\textsf{1}} & \multicolumn{1}{@{}c@{}}{\textsf{2}} & \multicolumn{1}{@{}c@{}}{\textsf{3}} & \multicolumn{1}{@{}c@{}}{\textsf{4}} & \multicolumn{1}{@{}c@{}}{\textsf{5}} & \multicolumn{1}{@{}c@{}}{\textsf{6}} 
+\end{tabular}
+\end{center}
+\vspace*{-6mm}
+\caption{Spielfeld der Gr\"o{\ss}e $6$ (links) und 
+         Platzierung von Lichtern (rechts).\label{fig:laby}}
+\end{figure}
+
+\noindent
+Ein Beispiel ist in Abbildung~\ref{fig:laby} dargestellt.
+Die linke Seite zeigt das Spielfeld mit acht vorgegebenen Zellen,
+von denen drei leer sind und f\"unf jeweils eine Zahl enthalten.
+Auf der rechten Seite sind zus\"atzlich die Lichter dargestellt,
+deren Platzierung eine (in diesem Fall eindeutige) L\"osung f\"ur
+das Spielfeld bildet.
+Beobachten Sie, dass jede nicht vorgegebene (wei{\ss}e) Zelle
+entweder ein Licht enth\"alt oder eine horizontale oder vertikale
+Verbindung zu einer Zelle mit einem Licht hat.
+Zwischen den Zellen mit Lichtern gibt es dagegen keine solchen
+Verbindungen, z.B.\ sind die Zellen $($\textsf{4}$,$\textsf{4}$)$
+und $($\textsf{4}$,$\textsf{6}$)$ durch die Zelle mit der Zahl~$2$
+voneinander getrennt.
+Nicht zuletzt hat jede vorgegebene Zelle mit einer Zahl die geforderte
+Anzahl an horizontal oder vertikal angrenzenden Zellen mit Lichtern.
+
+\noindent
+Das beschriebene Puzzle kann auch online ausprobiert werden.
+Das Probespielen einiger Levels ist wahrscheinlich die beste Methode,
+sich die Regeln zu vergegenwärtigen und L\"osungsideen zu entwickeln.
+Das Spiel (als Java-Applet) finden Sie hier:
+
+\url{http://www.janko.at/Raetsel/Akari/}
+
+%\newpage
+\paragraph{Repräsentation in ASP.}
+Die Seitenlängen des Gitters,
+die vorgegebenen Zellen mit Zahlen und
+die vorgegebenen leeren Zellen stellen wir 
+durch Fakten folgender Form dar:
+% der folgenden Form dar:%
+% \newpage
+\vspace{-1mm}
+\begin{verbatim}
+ rows(R).       % Number of rows
+ cols(C).       % Number of columns
+ digit(X,Y,D).  % Digit D at position (X,Y), i.e., in row X and column Y
+ empty(X,Y).    % Empty cell at position (X,Y), i.e., in row X and column Y
+\end{verbatim}
+
+\noindent
+Z.B.\ wird das in Abbildung~\ref{fig:laby} (links) dargestellte Spielfeld % wird z.B.\
+durch folgende Fakten beschrieben:
+\vspace{-1mm}
+\begin{verbatim}
+ rows(6).       cols(6).
+ digit(1,3,1).  digit(3,2,0).  digit(4,5,2).  digit(6,3,0).  digit(6,4,1).
+ empty(1,4).    empty(3,5).    empty(4,2).
+\end{verbatim}
+%\vspace{-1mm}
+Eine Lösung, d.h.\ eine Platzierung von Lichtern auf nicht vorgegebenen
+Zellen, die allen oben beschriebenen Bedingungen gen\"ugt,
+wird durch Atome folgender Form repräsentiert:%
+\vspace{-1mm}
+\begin{verbatim}
+ light(X1,Y1)  light(X2,Y2)  ...  light(Xn,Yn)  % Cells with lights
+\end{verbatim}
+%\vspace{-1mm}
+Die in Abbildung~\ref{fig:laby} (rechts) dargestellte Lösung wird z.B.\
+durch die folgenden Atome innerhalb einer Antwortmenge beschrieben:
+\vspace{-1mm}
+\begin{verbatim}
+ light(1,1)  light(1,5)  light(2,3)  light(4,4) 
+ light(4,6)  light(5,2)  light(6,5) 
+\end{verbatim}
+%\vspace{-1mm}
+
+\paragraph{Framework.}
+
+\noindent
+In dem Archiv \texttt{lights.zip} finden Sie die Datei \texttt{lights.lp} und achtzehn Beispielinstanzen.
+Die Datei \texttt{lights.lp} ist von Ihnen mit Ihrem ASP-Encoding zu ergänzen.
+Wenn Sie Ihr Encoding einreichen,
+dann müssen die folgenden Zeilen in \texttt{lights.lp} enthalten sein:
+\footnote{Diese Anweisungen sorgen dafür, dass alle Atome, die nicht zur Repräsentation von Lösungen gehören, bei der Ausgabe von Antwortmengen ausgeblendet werden.}
+\vspace{-1mm}
+\begin{verbatim}
+ #hide.
+ #show light/2.
+\end{verbatim}
+% \begin{tabular}{l}
+% \code{\#hide.}\\
+% \code{\#show light/2.}\\
+% \end{tabular}
+
+\noindent
+{\small\sf Sie m\"ussen Ihr Encoding in einer Datei mit dem Namen \texttt{lights.lp}
+           einreichen.
+           Neben \code{light/2} d\"urfen in der eingereichten Version keine weiteren
+           Pr\"adikate in der Ausgabe eingeblendet sein!}
+
+\noindent
+
+
+\noindent
+
+\paragraph{Formalitäten.}
+%
+Sie können die Praktikumsaufgabe in Gruppen von \textbf{bis zu zwei} Studenten gemeinsam bearbeiten.
+Verschiedene Gruppen müssen verschiedene Lösungen einreichen.
+Bei Plagiaten wird die Praktikumsaufgabe für alle beteiligten Gruppen als ``nicht bestanden'' gewertet.
+Reichen Sie Ihr Encoding bitte bis zum \textbf{11.12.2011}
+über die von der Moodle-Seite zur Vorlesung aus verlinkte YETI-Plattform ein.
+(Alle Gruppenmitglieder müssen bei YETI einen Account haben und als 
+ Gruppenmitglieder registriert sein!)
+% Tragen Sie dort alle Ihre Gruppenmitglieder ein.
+Achten Sie darauf, dass Sie Ihr Encoding in einer Datei mit dem Namen \code{lights.lp} einreichen,
+wobei der Dateiname ausschließlich Kleinbuchstaben enthält.
+
+\noindent
+Neben den achtzehn vorgegebenen Instanzen (mit jeweils einer eindeutigen L\"osung)
+testen wir Ihr Encoding auf weiteren Ihnen unbekannten Instanzen.
+Auch auf diesen weiteren Instanzen muss Ihr Encoding \emph{korrekt} funktionieren,
+damit die Praktikumsaufgabe als bestanden gilt.
+Wenn Sie Ihr Encoding bei YETI hochladen, wird es dort automatisch getestet
+(mit geringer zeitlicher Verz\"ogerung).
+Falls dabei Fehler auftreten, k\"onnen Sie diese den Statusmeldungen von YETI entnehmen.
+Zur Analyse der resultierenden Effizienz von Encodings werden wir ein Vergleichsencoding 
+bei YETI hochladen, das Ihnen einen Anhalts\-punkt bzgl.\ der Performanz Ihres
+eigenen Encodings gibt.
+
+% \noindent{\small\sf
+% Encodings, die eine \"ahnliche Performanz wie unser Vergleichsencoding erzielen,
+% werden mit \textbf{bis zu 2 Bonuspunkten auf die Klausur} honoriert.}
+
+
+\paragraph{Empfehlungen und Hinweise:}%\vspace{-2mm}
+\begin{itemize}
+\item Überlegen Sie sich, welche Bedingungen Sie zur Charakterisierung von L\"osungen
+      testen wollen und definieren Sie geeignete Pr\"adikate, die diese Tests erm\"oglichen.
+% eine allgemeine (geeignete) Repräsentation, um Pfade zu beschreiben, bevor Sie Ihre Idee in einem ASP-Encoding umsetzen.
+\item Verwenden Sie die Kommandozeilenoption \texttt{--solution-recording} zur
+      Effizienz\-steigerung bei der Berechnung aller L\"osungen, z.B.\ wie in dem folgenden Aufruf:
+
+\begin{tabular}{@{}l}%
+\texttt{[user@local \textasciitilde] clingo lights.lp test01.lp --solution-recording 0}
+\end{tabular}
+\item Wenn Sie an einer Stelle nicht weiterkommen, können Sie sich gern an uns wenden.
+      Wir versuchen alle Fragen bestmöglich zu beantworten.
+      Fragen k\"onnen Sie entweder pers\"onlich an uns richten oder per Mail an:
+      \texttt{asp1@cs.uni-potsdam.de}.
+\item Fangen Sie bald mit der Bearbeitung der Aufgabe an, damit Ihnen die Zeit nicht davonläuft.
+      (Sollten Sie trotzdem Schwierigkeiten mit der Einhaltung des Termins
+       haben, dann wenden Sie sich bitte an uns, anstatt eine beliebige Lösung
+       zu kopieren!)
+% \item Behalten Sie Ihren Quelltext für sich.
+%       Sie helfen Ihren Kommilitonen nicht, wenn Sie Ihren Quelltext weitergeben, da das Nachvollziehen eines fremden Encodings schwieriger ist als ein eigenes zu entwerfen.
+\end{itemize}
+
+\end{PraktikumsAufgabe}
+\end{document}

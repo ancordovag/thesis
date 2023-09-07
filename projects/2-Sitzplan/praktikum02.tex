@@ -1,0 +1,281 @@
+\documentclass[a4paper,12pt,ngerman]{article}
+
+\usepackage[ngerman]{babel}
+\usepackage[utf8]{inputenc}
+%\usepackage{listings}
+%\lstset{basicstyle=\ttfamily\small}
+%\usepackage{verbatim}
+%\usepackage{dingbat}
+%\usepackage{graphics}
+%\usepackage[dvipsnames,usenames]{color}
+%\usepackage{amsmath,amssymb}
+\usepackage{exercises}
+\usepackage{../../../asp}
+%\usepackage{url}
+\usepackage{hyperref}
+
+\sloppy
+% \DeclareFontFamily{U}{bulb}{}
+% \DeclareFontShape{U}{bulb}{m}{n}{<-> lightbulb10}{}
+% \newcommand{\lightbulb}{{\usefont{U}{bulb}{m}{n}A}}
+
+\begin{document}
+\begin{PraktikumsAufgabe}{2}{(Sitzplan)}
+%
+% \vspace*{-6mm}
+\paragraph{Problembeschreibung.}
+%
+%
+Die Studenten eines Kurses überlegen sich, wie der Sitzplan bei der
+Klausur aussehen müsste, damit möglichst viele von ihnen abschreiben können.
+Zur Ermittlung aussichtsreicher Abschreibgelegenheiten 
+schätzt jeder Student vorab seine Note.
+Wenn ein Teilnehmer nicht zu nahe an der Klausuraufsicht sitzt,
+kann er von einem besseren Studenten direkt vor oder neben sich abschreiben.
+Um die Abschreibgelegenheiten objektiv zu optimieren, soll der
+Sitzplan mittels Antwortmengenprogrammierung (ASP) erstellt werden.
+Die ASP-Lösung ist allerdings auch für die Kursleitung praktisch,
+um ihrerseits einen Sitzplan mit möglichst wenig Abschreibgelegenheiten zu gestalten.
+%
+\begin{figure}[h]
+\begin{center}
+\begin{tabular}[t]{l@{}p{5mm}@{}|@{}p{5mm}@{}|@{}p{5mm}@{}|@{}p{5mm}@{}|@{}l}
+\cline{3-5}
+& & & & & ~\textsf{1} 
+\\\cline{3-5}
+& & & & & ~\textsf{2} 
+\\\cline{3-5}
+& & & & & ~\textsf{3}
+\\\cline{3-5}
+& \multicolumn{1}{@{}c@{}}{} &
+\multicolumn{1}{@{}c@{}}{\textsf{1}} & \multicolumn{1}{@{}c@{}}{\textsf{2}} & \multicolumn{1}{@{}c@{}}{\textsf{3}}
+\\\multicolumn{6}{c}{Modus: Studenten}
+\\\multicolumn{6}{c}{Beobachter: 1}
+\end{tabular}
+\begin{tabular}[t]{c|c}
+Student & Note \\
+\cline{1-2}
+1 & 27 \\
+2 & 14 \\
+3 & 26 \\
+4 & 39 \\
+5 & 27 \\
+6 & 34 \\
+\end{tabular}
+\hspace{3cm}
+\begin{tabular}[t]{l@{}p{5mm}@{}|@{}p{5mm}@{}|@{}p{5mm}@{}|@{}p{5mm}@{}|@{}l}
+\cline{3-5}
+& & ~S & & ~3 & ~\textsf{1} 
+\\\cline{3-5}
+& & & ~2 & ~1 & ~\textsf{2}
+\\\cline{3-5}
+& & ~5 & ~4 & ~6& ~\textsf{3} 
+\\\cline{3-5}
+& \multicolumn{1}{@{}c@{}}{} &
+\multicolumn{1}{@{}c@{}}{\textsf{1}} & \multicolumn{1}{@{}c@{}}{\textsf{2}} & \multicolumn{1}{@{}c@{}}{\textsf{3}} 
+\end{tabular}
+\end{center}
+\vspace*{-4mm}
+\caption{Ein Beispielszenario (links) und ein optimaler Sitzplan (rechts).\label{fig:plan}}
+\end{figure}
+
+\noindent
+Ein beispielhaftes Szenario ist in Abbildung \ref{fig:plan} (links) dargestellt.
+Neben dem Raum, in dem die Klausur geschrieben wird, sind die geschätzten Noten,
+die Anzahl der für die Aufsicht zuständigen Personen und der Modus angegeben.
+Die Aufgabe besteht darin, Studenten und Beobachter so zu platzieren,
+dass möglichst viel (bzw.\ wenig) abgeschrieben werden kann,
+wobei die folgenden formalen Kriterien angelegt werden:
+\vspace{-3mm}
+\begin{enumerate}\itemsep-3pt
+  \item Verschiedene Beobachter müssen (aus Kostengründen)
+        mindestens drei Plätze voneinander entfernt sitzen,
+        wobei die Manhattan-Distanz (Summe der Koordinatendifferenzen)
+        als Maß für den Abstand zwischen Plätzen
+        verwendet wird. % \footnotemark[1]
+  \item Ein Student, der horizontal, vertikal oder diagonal unmittelbar neben
+        einem Beobachter sitzt,
+        kann nicht abschreiben. % \footnote[1]{Die Distanzen sind in Manhattan-Metrik definiert.}
+%        Die Position des Studenten, von dem abgeschrieben wird, ist dabei irrelevant.
+%  \item Ein Student kann von einem besseren Studenten abschreiben, der direkt vor oder neben ihm sitzt.
+%        Wie gut ein Student ist, wird dabei über die abgeschätzten Noten definiert.
+        Andernfalls kann der Student von direkt vor oder neben sich platzierten
+        besseren Teilnehmern (mit kleinerer Note) abschreiben.
+  \item Im Studentenmodus soll die Anzahl der Abschreibgelegenheiten,
+        ermittelt anhand von Paaren voneinander abschreibender Studenten,
+        möglichst groß und im Kursleitungsmodus möglichst klein sein.
+% Es soll die Anzahl der Abschreibmöglichkeiten maximiert werden und nicht die Anzahl der
+%         Studenten die irgendwo abschreiben können. Das heißt, ein Student,
+%         der links und rechts abschreiben kann, zählt doppelt.
+%   \item Ob möglichst wenig oder viel abgeschrieben werden soll, bestimmt der Modus.
+%         Im Studenten-Modus gilt es, die Abschreibmöglichkeiten zu maximieren und im Uni-Modus zu minimieren.
+\end{enumerate}
+\vspace{-3mm}
+Eine optimale L\"osung (für Studenten) mit 6 Abschreibgelegenheiten ist in Abbildung~\ref{fig:plan} (rechts) dargestellt, wobei die Nummern für Studenten und $S$ für den Beobachter stehen.
+Konkret kann bei der gezeigten Platzierung wie folgt abgeschrieben werden:
+\vspace{-3mm}
+\begin{itemize}\itemsep-3pt
+\item Student $1$ von Student $2$ und $3$
+\item Student $4$ von Student $2$, $5$ und $6$
+\item Student $6$ von Student $1$
+\end{itemize}
+
+%\newpage
+\paragraph{Repräsentation in ASP.}
+
+In ASP repräsentieren wir Probleminstanzen durch Fakten
+über den folgenden Prädikaten:
+% \newpage
+\vspace{-1mm}
+\begin{verbatim}
+ cols(C)            % Anzahl Sitze je Reihe
+ rows(R)            % Anzahl der Sitzreihen
+ mode(K)            % Modus (students - maximiere Abschreiben,
+                    %        uni      - minimiere Abschreiben)
+ numstudents(N)     % Anzahl der Studenten
+ numsupervisors(M)  % Anzahl der Beobachter
+ exp_grade(S,G)     % geschätzte Note G von Student S
+\end{verbatim}
+\vspace{-1mm}
+Für jeden der von \texttt{1} bis \texttt{N} (aus \texttt{numstudents(N)})
+fortlaufend nummerierten Studenten~\texttt{S} enhält eine Instanz genau
+einen Fakt \texttt{exp\_grade(S,G)} mit der geschätzten Note~\texttt{G} von~\texttt{S}.
+
+\noindent
+Z.B.\ wird das Szenario in Abbildung~\ref{fig:plan} (links) % dargestellte
+durch folgende Fakten beschrieben:
+\vspace{-1mm}
+\begin{verbatim}
+ cols(3). rows(3). mode(students).
+ numstudents(6). numsupervisors(1).
+ exp_grade(1,27).  exp_grade(2,14).  exp_grade(3,26).
+ exp_grade(4,39).  exp_grade(5,27).  exp_grade(6,34).
+\end{verbatim}
+
+\noindent
+Eine Lösung, d.h.\ eine Platzierung von Studenten und Beobachtern,
+% die Anzahl der Paare von Studenten (a,b) bei denen a von b abschreibt,
+wird durch Atome der folgenden Form repräsentiert:%
+\vspace{-1mm}
+\begin{verbatim}
+ at(student(1),X1,Y1) ... at(student(N),XN,YN)  % Studentenpositionen
+ at(supervisor,X1,Y1) ... at(supervisor,XM,YM)  % Beobachterpositionen
+\end{verbatim}
+\vspace{-1mm}
+Während die Nummern von Studenten in den Atomen enthalten sind,
+werden Beobachter nicht einzeln benannt.
+Außerdem müssen die Positionen in den Atomen paarweise ver\-schie\-den voneinander sein.
+
+\noindent
+Die in Abbildung~\ref{fig:plan} (rechts) dargestellte Lösung wird z.B.\
+durch folgendes Atome innerhalb einer Antwortmenge beschrieben:
+\vspace{-1mm}
+\begin{verbatim}
+ at(student(1),3,2)  at(student(2),2,2)  at(student(3),3,1)
+ at(student(4),2,3)  at(student(5),1,3)  at(student(6),3,3)
+ at(supervisor,1,1)
+\end{verbatim}
+
+\paragraph{Framework.}
+
+\noindent
+In dem Archiv \href{http://www.cs.uni-potsdam.de/wv/lehre/12WS/12-Antwortprog/plan.tar.gz}%TODO
+{\texttt{plan.tar.gz}} finden Sie die Datei \texttt{plan.lp} und sieben Beispielinstanzen.
+Die Datei \texttt{plan.lp} ist von Ihnen mit Ihrem ASP-Encoding zu ergänzen,
+sodass \emph{optimale} Antwortmengen zu Lösungen mit je nach Modus
+maximal oder minimal vielen Abschreibgelegenheiten
+% "`Abschreiberpaaren"' 
+korrespondieren.
+Wenn Sie Ihr Encoding einreichen,
+dann müssen die folgenden Zeilen in \texttt{plan.lp} enthalten sein:%
+\footnote{Diese Anweisungen sorgen dafür, dass alle Atome, die nicht zur Repräsentation von Lösungen gehören, bei der Ausgabe von Antwortmengen ausgeblendet werden.}
+\vspace{-1mm}
+\begin{verbatim}
+ #hide.
+ #show at(student(_),_,_).
+ #show at(supervisor,_,_).
+\end{verbatim}
+\vspace{-1mm}
+{\small\sf Sie m\"ussen Ihr Encoding in einer Datei mit dem Namen \texttt{plan.lp}
+           einreichen.
+           Neben \texttt{at/3} d\"urfen in der eingereichten Version keine weiteren
+           Pr\"adikate in der Ausgabe enthalten    sein!}%
+
+\paragraph{Formalitäten.}
+%
+Sie können die Praktikumsaufgabe in Gruppen von \textbf{bis zu zwei} Studenten gemeinsam bearbeiten.
+Verschiedene Gruppen müssen verschiedene Lösungen einreichen.
+Bei Plagiaten wird die Praktikumsaufgabe für alle beteiligten Gruppen als ``nicht bestanden'' gewertet.
+Reichen Sie Ihr Encoding bitte bis zum \textbf{31.12.2012}
+über % die von der Moodle-Seite zur Vorlesung aus verlinkte 
+\href{http://yeti.haiti.cs.uni-potsdam.de/student/showPractical.do?practicalId=38}{YETI} % -Plattform
+ein.
+(Alle Gruppenmitglieder müssen bei YETI einen Account haben und als 
+ Gruppenmitglieder registriert sein!)
+Achten Sie darauf, dass Sie Ihr Encoding in einer Datei mit dem Namen \texttt{plan.lp} einreichen,
+wobei der Dateiname ausschließlich Kleinbuchstaben enthält.
+
+\noindent
+Neben den sieben vorgegebenen Instanzen
+testen wir Ihr Encoding auf weiteren Ihnen unbekannten Instanzen.
+Auch auf diesen weiteren Instanzen muss Ihr Encoding \emph{korrekt} funktionieren,
+d.h.\ (im Falle der Terminierung innerhalb weniger Minuten) \textbf{eine} optimale Lösung liefern,
+damit die Praktikumsaufgabe als bestanden gilt.
+Wenn Sie Ihr Encoding bei YETI hochladen, wird es dort automatisch getestet
+(mit geringer zeitlicher Verz\"ogerung).
+Falls dabei Fehler auftreten,
+% d.h.\ eine optimale Lösung wurde nicht ermittelt,
+k\"onnen Sie dies den Statusmeldungen von YETI entnehmen.
+Bitte korrigieren Sie eventuelle Fehler umgehend selbständig oder
+(bei Schwierigkeiten) in Rücksprache mit uns.
+
+\noindent{\small\sf
+\textbf{Bonus:} % TODO
+Zur Analyse der resultierenden Effizienz von Encodings werden wir ein Vergleichsencoding 
+bei YETI hochladen, das Ihnen einen Anhalts\-punkt bzgl.\ der Performanz Ihres
+eigenen Encodings gibt.
+Encodings, die eine ähnliche Performanz wie unser Vergleichsencoding erzielen,
+werden mit bis zu 2 Bonuspunkten auf die Klausur honoriert.}
+
+\paragraph{Empfehlungen und Hinweise:}\vspace{-2mm}
+\begin{itemize}
+\item Überlegen Sie sich, welche Bedingungen Sie zur Ermittlung (optimaler) L\"osungen
+      testen wollen und definieren Sie geeignete Pr\"adikate, die diese Tests erm\"oglichen.
+% eine allgemeine (geeignete) Repräsentation, um Pfade zu beschreiben, bevor Sie Ihre Idee in einem ASP-Encoding umsetzen.
+\item Die resultierende Effizienz von Encodings kann nicht unabhängig von dem
+      zugrunde liegende Lösungsverfahren ermittelt werden.
+      Die folgenden Faustregeln können dennoch  (unabhängig von Lösungsverfahren) als universell betrachtet werden:
+      \vspace{-2mm}
+      \begin{enumerate}\itemsep-1pt
+      \item Platzbedarf und Laufzeit korrespondieren zueinander.
+            Wenn die gleichen Sachverhalte mit weniger (instanziierten) Regeln ausgedrückt werden können,
+            dann sollte die Suche nach Antwortmengen davon profitieren.
+            (Verwenden Sie möglichst Default-Negation anstelle von Auflistungen komplementärer Werte.)
+      \item Regeln und Integritätsbedingungen sind umso stärker, je weniger (nicht statisch bestimmte)
+            Vorbedingungen in ihren Körpern auftreten.
+            (Vermeiden Sie für die Korrektheit unerhebliche Fallanalysen in Regelkörpern.)
+      \item Die Suche profitiert i.d.R.\ davon, dass nicht-triviale inhärente Eigenschaften von (optimalen)
+            Lösungen in``redundanten'' Bedingungen explizit gemacht werden, weil sie dann nicht
+            erst auf Fallbasis über Suche ermittelt werden müssen.
+      \end{enumerate}
+%      \vspace{-3mm}
+% \item Verwenden Sie die Kommandozeilenoption \texttt{--solution-recording} zur
+%       Effizienz\-steigerung bei der Optimierung von L\"osungen, z.B.\ wie in dem folgenden Aufruf:\newline
+% \begin{tabular}{@{}l}%
+% \texttt{[user@local \textasciitilde] clingo plan.lp test01.lp --solution-recording 0}
+% \end{tabular}
+\item Wenn Sie an einer Stelle nicht weiterkommen, können Sie sich gern an uns wenden.
+      Wir versuchen alle Fragen bestmöglich zu beantworten.
+      Fragen und Bemerkungen k\"onnen Sie pers\"onlich an uns richten,
+      in \href{http://moodle.cs.uni-potsdam.de/course/view.php?id=39}{Moodle} (Forum/Wiki) stellen oder per Mail an
+      \href{mailto:asp1@cs.uni-potsdam.de}{\texttt{asp1@cs.uni-potsdam.de}} senden.
+\item Fangen Sie bald mit der Bearbeitung der Aufgabe an, damit Ihnen die Zeit nicht davonläuft.
+      (Sollten Sie trotzdem Schwierigkeiten mit der Einhaltung des Termins
+       haben, dann wenden Sie sich bitte an uns, anstatt eine beliebige Lösung
+       zu kopieren!)
+% \item Behalten Sie Ihren Quelltext für sich.
+%       Sie helfen Ihren Kommilitonen nicht, wenn Sie Ihren Quelltext weitergeben, da das Nachvollziehen eines fremden Encodings schwieriger ist als ein eigenes zu entwerfen.
+\end{itemize}
+
+\end{PraktikumsAufgabe}
+\end{document}

@@ -1,0 +1,263 @@
+\documentclass[a4paper,12pt]{article}
+
+%\usepackage[ngerman]{babel}
+\usepackage[utf8]{inputenc}
+%\usepackage{listings}
+%\lstset{basicstyle=\ttfamily\small}
+%\usepackage{verbatim}
+%\usepackage{dingbat}
+\usepackage{graphics}
+\usepackage[dvipsnames,usenames,table]{xcolor}
+\usepackage{amsmath,amssymb}
+\usepackage{exercises}
+\usepackage{../../asp}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{tikz}
+
+\sloppy
+\DeclareFontFamily{U}{bulb}{}
+\DeclareFontShape{U}{bulb}{m}{n}{<-> lightbulb10}{}
+\newcommand{\lightbulb}{{\usefont{U}{bulb}{m}{n}A}}
+
+\newcommand*\circled[1]{\hspace{0.6mm}\tikz[baseline=(char.base)]{
+    \node[shape=circle,draw,fill,inner sep=0.2mm] (char) {\color{White}\footnotesize{\textsf{\textbf{#1}}}};}}
+
+\newcommand*\ccircle[1]{\tikz[baseline={([yshift=-8pt]current bounding box.north)}]{\draw[black,fill=#1] (0,0) circle (1ex);}}
+
+\begin{document}
+\begin{PraktikumsAufgabe}{2}{(Weaving)}
+\vspace*{-4mm}
+\paragraph{Problem Description.}
+%
+%
+The task of this project is to solve a logic puzzle using ASP.
+The objective of the game is to paint a board one row or column at a time, 
+so that the final board matches the goal colors.
+
+At each step the player paints the cells in exactly one column or row, 
+and the game is finished after each column and row has been painted exactly once.
+Painting a column or row replaces the color of each cell with the color chosen by the player.
+To win the game the color of every cell has to match its goal color,
+and the cells with no goal color may be colored arbitrarily.
+
+%%%%%
+%rr %
+%g b%
+%r g%
+%%%%%
+%
+\begin{figure}[h]
+\begin{center}
+\begin{tabular}{c@{~}|c|c|c|l}
+\cline{2-4}
+\textsf{1} & \ccircle{red} & \ccircle{red} &
+\\\cline{2-4}
+\textsf{2} & \ccircle{green} & & \ccircle{blue}
+\\\cline{2-4}
+\textsf{3} & \ccircle{red} & \ccircle{green} & &
+\\\cline{2-4}
+\multicolumn{1}{@{}c@{}}{} &
+\multicolumn{1}{@{}c@{}}{\textsf{1}} & \multicolumn{1}{@{}c@{}}{\textsf{2}} & \multicolumn{1}{@{}c@{}}{\textsf{3}} 
+\end{tabular}
+\begin{tabular}{c@{~}|c|c|c|l}
+\cline{2-4}
+\textsf{1} & \ccircle{red} & \ccircle{red} &
+\\\cline{2-4}
+\textsf{2} & \ccircle{green} & & \ccircle{blue}
+\\\cline{2-4}
+\textcolor{red}{\textsf{3}} & {\cellcolor{red!50}}\ccircle{red} & {\cellcolor{red!50}}\ccircle{green} & {\cellcolor{red!50}} &
+\\\cline{2-4}
+\multicolumn{1}{@{}c@{}}{} &
+\multicolumn{1}{@{}c@{}}{\textsf{1}} & \multicolumn{1}{@{}c@{}}{\textsf{2}} & \multicolumn{1}{@{}c@{}}{\textsf{3}} 
+\end{tabular}
+\begin{tabular}{c@{~}|c|c|c|l}
+\cline{2-4}
+\textsf{1} & {\cellcolor{red!50}}\ccircle{red} & \ccircle{red} &
+\\\cline{2-4}
+\textsf{2} & {\cellcolor{red!50}}\ccircle{green} & & \ccircle{blue}
+\\\cline{2-4}
+\textsf{3} & {\cellcolor{red!50}}\ccircle{red} & {\cellcolor{red!50}}\ccircle{green} & {\cellcolor{red!50}} &
+\\\cline{2-4}
+\multicolumn{1}{@{}c@{}}{} &
+\multicolumn{1}{@{}c@{}}{\textcolor{red}{\textsf{1}}} & \multicolumn{1}{@{}c@{}}{\textsf{2}} & \multicolumn{1}{@{}c@{}}{\textsf{3}} 
+\end{tabular}
+\begin{tabular}{c@{~}|c|c|c|l}
+\cline{2-4}
+\textsf{1} & {\cellcolor{red!50}}\ccircle{red} & {\cellcolor{green!50}}\ccircle{red} &
+\\\cline{2-4}
+\textsf{2} & {\cellcolor{red!50}}\ccircle{green} & {\cellcolor{green!50}} & \ccircle{blue}
+\\\cline{2-4}
+\textsf{3} & {\cellcolor{red!50}}\ccircle{red} & {\cellcolor{green!50}}\ccircle{green} & {\cellcolor{red!50}} &
+\\\cline{2-4}
+\multicolumn{1}{@{}c@{}}{} &
+\multicolumn{1}{@{}c@{}}{\textsf{1}} & \multicolumn{1}{@{}c@{}}{\textcolor{green}{\textsf{2}}} & \multicolumn{1}{@{}c@{}}{\textsf{3}} 
+\end{tabular}
+\begin{tabular}{c@{~}|c|c|c|l}
+\cline{2-4}
+\textsf{1} & {\cellcolor{red!50}}\ccircle{red} & {\cellcolor{green!50}}\ccircle{red} &
+\\\cline{2-4}
+\textcolor{green}{\textsf{2}} & {\cellcolor{green!50}}\ccircle{green} & {\cellcolor{green!50}} & {\cellcolor{green!50}}\ccircle{blue}
+\\\cline{2-4}
+\textsf{3} & {\cellcolor{red!50}}\ccircle{red} & {\cellcolor{green!50}}\ccircle{green} & {\cellcolor{red!50}} &
+\\\cline{2-4}
+\multicolumn{1}{@{}c@{}}{} &
+\multicolumn{1}{@{}c@{}}{\textsf{1}} & \multicolumn{1}{@{}c@{}}{\textsf{2}} & \multicolumn{1}{@{}c@{}}{\textsf{3}} 
+\end{tabular}
+\begin{tabular}{c@{~}|c|c|c|l}
+\cline{2-4}
+\textcolor{red}{\textsf{1}} & {\cellcolor{red!50}}\ccircle{red} & {\cellcolor{red!50}}\ccircle{red} & {\cellcolor{red!50}}
+\\\cline{2-4}
+\textsf{2} & {\cellcolor{green!50}}\ccircle{green} & {\cellcolor{green!50}} & {\cellcolor{green!50}}\ccircle{blue}
+\\\cline{2-4}
+\textsf{3} & {\cellcolor{red!50}}\ccircle{red} & {\cellcolor{green!50}}\ccircle{green} & {\cellcolor{red!50}} &
+\\\cline{2-4}
+\multicolumn{1}{@{}c@{}}{} &
+\multicolumn{1}{@{}c@{}}{\textsf{1}} & \multicolumn{1}{@{}c@{}}{\textsf{2}} & \multicolumn{1}{@{}c@{}}{\textsf{3}} 
+\end{tabular}
+\begin{tabular}{c@{~}|c|c|c|l}
+\cline{2-4}
+\textsf{1} & {\cellcolor{red!50}}\ccircle{red} & {\cellcolor{red!50}}\ccircle{red} & {\cellcolor{blue!50}}
+\\\cline{2-4}
+\textsf{2} & {\cellcolor{green!50}}\ccircle{green} & {\cellcolor{green!50}} & {\cellcolor{blue!50}}\ccircle{blue}
+\\\cline{2-4}
+\textsf{3} & {\cellcolor{red!50}}\ccircle{red} & {\cellcolor{green!50}}\ccircle{green} & {\cellcolor{blue!50}} &
+\\\cline{2-4}
+\multicolumn{1}{@{}c@{}}{} &
+\multicolumn{1}{@{}c@{}}{\textsf{1}} & \multicolumn{1}{@{}c@{}}{\textsf{2}} & \multicolumn{1}{@{}c@{}}{\textcolor{blue}{\textsf{3}}} 
+\end{tabular}
+
+\end{center}
+\vspace*{-6mm}
+\caption{Example with a $3\times 3$ board and a step by step solution.\label{fig:weaving}}
+\end{figure}
+
+\noindent
+One example is shown in Figure~\ref{fig:weaving}.
+The top left board shows the initial configuration with six goal colors,
+and the following boards represent the steps of one possible solution.
+The column or row just painted is marked with a colored number on the side or bottom of the table.
+The last table shows the final state with all cells matching the goal colors.
+
+%\newpage
+\paragraph{Representation in ASP.}
+The dimensions of the board,
+the number of steps,
+the available colors
+and the goal colors are represented by facts of the following predicates:
+
+% \newpage
+\vspace{-1.5mm}
+\begin{verbatim}
+dim(D).                % D is the dimension of the board
+steps(S).              % S is the number of steps
+color(C).              % C is an available color
+goal(X,Y,C).           % Cell [X,Y] has goal color C
+\end{verbatim}
+\vspace{-1mm}
+Additionally, the predicate \code{painted/4} is used to fix some of the painting steps.
+The first parameter represents whether a row (\verb+x+) or column (\verb+y+) is painted,
+the second gives the row or column number,
+the third the color, and the last represents at which step of the game the action takes place
+(and the first step has number 1).
+\begin{verbatim}
+painted(x,N,C,S).      % row    N must be painted with color C at step S
+painted(y,N,C,S).      % column N must be painted with color C at step S
+\end{verbatim}
+\newpage
+For instance, the example shown in Figure~\ref{fig:weaving} (top left) is
+represented by the following facts:%
+\vspace{-1.5mm}
+\begin{verbatim}
+dim(3). steps(6). color(red). color(green). color(blue).
+goal(1,1,red).      goal(1,2,red).
+goal(2,1,green).                         goal(2,3,blue).
+goal(3,1,red).      goal(3,2,green).
+painted(x,3,red,1). painted(y,1,red,2).
+\end{verbatim}
+\vspace{-1mm}
+A solution -- i.e. the ordered list of painted columns and rows -- is represented by facts of predicate \texttt{paint/4}:
+\vspace{-1.5mm}
+\begin{verbatim}
+paint(x,N,C,S).        % paint row    N with color C at step S
+paint(y,N,C,S).        % paint column N with color C at step S
+\end{verbatim}
+\vspace{-1mm}
+The parameters of \code{paint/4} are identical to those of \code{painted/4}.
+The solution in Figure~\ref{fig:weaving} is represented by the following atoms:
+\vspace{-1.5mm}
+\begin{verbatim}
+paint(x,3,red,1)    paint(y,1,red,2)  paint(y,2,green,3)
+paint(x,2,green,4)  paint(x,1,red,5)  paint(y,3,blue,6)
+\end{verbatim}
+\vspace{-1mm}
+Note that the first two steps are identical to the ones given by \code{painted/4}.
+
+
+\paragraph{Framework.}
+
+\noindent
+In the
+%\href{http://www.cs.uni-potsdam.de/wv/lehre/13WS/??-Antwortprog/weaving.tar.gz}
+{\texttt{weaving.zip}}
+archive at Moodle you will find five example instances.
+You have to submit a file named \texttt{weaving.lp} that contains the following line 
+(and no more \texttt{\#show} statements)
+so that in the output only the atoms of predicate \texttt{paint/4} appear:
+%\footnote{These instructions hide all atoms that are not part of the solution representation.}%
+\vspace{-1.5mm}
+\begin{verbatim}
+#show paint/4.
+\end{verbatim}
+% \begin{tabular}{l}
+% \code{\#hide.}\\
+% \code{\#show paint/2.}\\
+% \end{tabular}
+\vspace{-1mm}
+% \noindent
+%{\small\sf The file containing your encoding has to be called \texttt{sudoku.lp}.
+%           Apart from \code{cell/3} no additional predicates must be included in the output!}
+
+\noindent
+
+\paragraph{Formalities.}
+%
+You can work on the solution alone or in groups of two people.
+Different groups have to submit different solutions, 
+in case of plagiarism all groups involved will fail the project.
+Please submit your encoding by \textbf{Thursday 27th, 2014} via
+\href{https://yeti.haiti.cs.uni-potsdam.de}{YETI}
+(All group members have to create a YETI account!).
+Be sure to submit your encoding in a file named \code{weaving.lp}
+containing only lowercase letters.
+
+\noindent
+We will test your encoding with the five provided instances as well as additional instances.
+Your encoding has to find the correct solutions for all instances.
+This will be tested automatically by YETI after you uploaded the encoding (with a slight delay).
+If your solution is not correct then YETI will display an error message.
+Please correct any errors that occur on your own or contact us if you get stuck.
+
+\paragraph{Tips:}
+\begin{itemize}
+\item Commands to find all stable models look as follows:%
+\vspace{-1.5mm}%
+\begin{verbatim}
+$  gringo-4 weaving.lp example.lp | clasp3 0
+\end{verbatim}
+\vspace{-1mm}
+\item If you are stuck you can contact us. We will do out best to answer all your questions.
+      You can send us questions and remarks via 
+      \href{http://moodle.cs.uni-potsdam.de/course/view.php?id=39}{Moodle} (forum/wiki)
+      or send them via mail to 
+      \href{mailto:asp@lists.cs.uni-potsdam.de}{\texttt{asp@lists.cs.uni-potsdam.de}}.
+\item Start as soon as possible to avoid running out of time.
+      (However, if you still realize that you have problems making it before the deadline,
+       please contact us instead of copying another solution).
+% \item Behalten Sie Ihren Quelltext für sich.
+%       Sie helfen Ihren Kommilitonen nicht, wenn Sie Ihren Quelltext weitergeben, da das Nachvollziehen eines fremden Encodings schwieriger ist als ein eigenes zu entwerfen.
+\end{itemize}
+
+\end{PraktikumsAufgabe}
+\end{document}
+

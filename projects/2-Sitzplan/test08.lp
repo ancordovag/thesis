@@ -1,0 +1,11 @@
+rows(4).
+cols(4).
+mode(students).
+numstudents(6).
+numsupervisors(1).
+exp_grade(1,21).
+exp_grade(2,40).
+exp_grade(3,28).
+exp_grade(4,27).
+exp_grade(5,28).
+exp_grade(6,35).

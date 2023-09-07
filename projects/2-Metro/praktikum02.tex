@@ -1,0 +1,281 @@
+\documentclass[a4paper,12pt,ngerman]{article}
+
+\usepackage[ngerman]{babel}
+\usepackage[utf8]{inputenc}
+%\usepackage{listings}
+%\lstset{basicstyle=\ttfamily\small}
+%\usepackage{verbatim}
+%\usepackage{dingbat}
+\usepackage{graphics}
+\usepackage[dvipsnames,usenames]{color}
+\usepackage{amsmath,amssymb}
+\usepackage{exercises}
+\usepackage{../../../asp}
+\usepackage{url}
+\usepackage{hyperref}
+
+\sloppy
+% \DeclareFontFamily{U}{bulb}{}
+% \DeclareFontShape{U}{bulb}{m}{n}{<-> lightbulb10}{}
+% \newcommand{\lightbulb}{{\usefont{U}{bulb}{m}{n}A}}
+
+\begin{document}
+\begin{PraktikumsAufgabe}{2}{(Metro)}
+%
+\vspace*{-6mm}
+\paragraph{Problembeschreibung.}
+%
+%
+Ein aktuelles Ziel in der Telekommunikation ist die Bereitstellung
+schneller und zuverlässiger Glasfasernetze. % (in Zeiten von HD-Streams und Clouddiensten).
+Da der Netzaufbau bzw.\ -ausbau kostspielig ist,
+sowohl bzgl.\ Material- als auch Baukosten,
+werden die Verbindungsstrecken bei der Netzplanung möglichst gering gehalten.
+Spielräume bei der Planung ergeben sich daraus,
+dass die Standorte sogenannter Metroknoten flexibel gewählt werden können,
+wohingegen die zu verbindenden lokalen Endknoten feststehen.
+Da bei der Netzoptimierung einige Randbedingungen (siehe unten) zu beachten sind
+und die Kombinatorik mit der Anzahl und Variabilität möglicher Metroknoten deutlich ansteigt,
+soll die Planung mittels Antwortmengenprogrammierung (ASP) realisiert werden.
+
+\begin{figure}[h]
+\setlength{\unitlength}{1cm}
+\begin{picture}(4,2.4)(-1.5,0.9)\thicklines
+\put(1,1){\circle*{0.2}}\put(0.85,0.6){$\scriptstyle{77}$}
+\put(1,2){\circle*{0.2}}\put(0.50,1.95){$\scriptstyle{53}$}
+\put(2,2){\circle*{0.2}}\put(1.85,1.65){$\scriptstyle{59}$}
+\put(4,1){\circle*{0.2}}\put(3.85,0.6){$\scriptstyle{47}$}
+\put(1,3){\circle{0.2}}\put(-0.1,2.9){$\scriptstyle({160},3)$}
+\put(2,3){\circle{0.2}}\put(1.45,3.2){$\scriptstyle({200},3)$}
+\put(3,1){\circle{0.2}}\put(2.55,0.6){$\scriptstyle({130},2)$}
+\put(3,2){\circle{0.2}}\put(2.55,2.2){$\scriptstyle({180},3)$}
+\put(3,3){\circle{0.2}}\put(2.55,3.2){$\scriptstyle({240},4)$}
+\put(4,2){\circle{0.2}}\put(4.20,1.95){$\scriptstyle({240},4)$}
+\end{picture}
+\hfill
+\begin{picture}(4,2.4)(-1.5,0.9)\thicklines
+\put(1,1){\circle*{0.2}}\put(0.85,0.6){$\scriptstyle{77}$}
+\put(1,2){\circle*{0.2}}\put(0.50,1.95){$\scriptstyle{53}$}
+\put(2,2){\circle*{0.2}}\put(1.85,1.65){$\scriptstyle{59}$}
+\put(4,1){\circle*{0.2}}\put(3.85,0.6){$\scriptstyle{47}$}
+% \put(1,3){\circle{0.2}}\put(-0.1,2.9){$\scriptstyle({160},3)$}
+\put(2,3){\circle{0.2}}\put(1.45,3.2){$\scriptstyle({200},3)$}
+\put(3,1){\circle{0.2}}\put(2.55,0.6){$\scriptstyle({130},2)$}
+\put(3,2){\circle{0.2}}\put(2.55,2.2){$\scriptstyle({180},3)$}
+% \put(3,3){\circle{0.2}}\put(2.55,3.2){$\scriptstyle({240},4)$}
+% \put(4,2){\circle{0.2}}\put(4.20,1.95){$\scriptstyle({240},4)$}
+\put(1,1){\line(1,0){1.9}}\put(1,1){\line(1,2){0.95}}
+\put(1,2){\line(1,1){0.915}}\qbezier(1,2)(2,1.2)(2.9,1.95)
+\put(2,2){\line(0,1){0.9}}\put(2,2){\line(1,0){0.9}}
+\put(4,1){\line(-1,0){0.9}}\put(4,1){\line(-1,1){0.915}}
+\end{picture}
+\hfill\mbox{~}
+\caption{Ein Netzbeispiel (links) und Verbindungen zu drei Metroknoten (rechts).\label{fig:metro}}
+\end{figure}
+
+\noindent
+Eine beispielhaftes Netzplanungsproblem ist in Abbildung~\ref{fig:metro} (links) dargestellt.
+Die vier schwarzen Punkte symbolisieren lokale Endknoten, die jeweils eine bestimmte, an
+den            Knoten angegebene, Netzlast erzeugen.
+Dagegen stellen die weißen Punkte mögliche Metroknoten dar, die jeweils mit einem Zahlenpaar
+aus maximaler Kapazität und der Maximalanzahl verbundener Endknoten assoziiert sind.
+Bei der Netzplanung besteht das Problem darin, aus den Möglichkeiten eine vorgegebene Anzahl
+von Metroknoten auszuwählen und ihre Verbindungen zu den Endknoten so festzulegen,
+dass die folgenden (harten) Bedingungen erfüllt sind:
+\vspace{-3mm}
+\begin{enumerate}\itemsep-3pt
+  \item Um den Ausfall eines Metroknoten kompensieren zu können,
+        muss jeder lokale Endknoten mit genau \emph{zwei} Metroknoten verbunden sein.
+  \item Die Anzahl der zu einem Metroknoten verbundenen Endknoten darf        die Maximal\-anzahl
+        von Verbindungen des Metroknoten nicht übersteigen.
+  \item Die Summe von Lasten der zu einem Metroknoten verbundenen Endknoten darf       die Kapazität
+        des Metroknoten nicht übersteigen.
+  \item Im Falle des Ausfalls von \emph{zwei} beliebigen Metroknoten
+        darf   die Anzahl der vom Netz abgetrennten lokalen Endknoten eine 
+        vorgegebene Schranke nicht überschreiten.
+\end{enumerate}
+\vspace{-3mm}
+Eine L\"osung mit~$3$ Metroknoten, die diese      Bedingungen f\"ur die Schranke~$2$ von 
+bei einem Doppelausfall
+abgetrennten   Endknoten erf\"ullt, ist in Abbildung~\ref{fig:metro} (rechts) dargestellt.
+
+\noindent
+Wie oben bereits angesprochen, sind die Verbindungsstrecken zwischen lokalen End- und
+Metroknoten m\"oglichst gering zu halten,
+wobei die quadratische 
+          Euklidische Distanz $$      (x_1{-}x_2)^2+(y_1{-}y_2)^2 $$ als Maß f\"ur
+die Strecke zwischen zwei Knoten mit den Koordinaten $(x_1,y_1)$ und $(x_2,y_2)$ verwendet
+werden kann.
+Als zusätzliche (weiche) Bedingung ist also
+die Summe der quadratischen 
+              Euklidischen Distanzen zwischen verbundenen lokalen End- und Metroknoten 
+zu minimieren.% \footnote{%
+% Die Ausdrücke
+% $(\sum_{1\leq i\leq m}\!\sqrt{|r_i|})<(\sum_{1\leq j\leq n}\!\sqrt{|s_j|})$ und
+% $(\sum_{1\leq i\leq m}\!|r_i|)<(\sum_{1\leq j\leq n}\!|s_j|)$
+% sind \"aquivalent.}
+
+%\newpage
+\paragraph{Repräsentation in ASP.}
+
+In ASP repräsentieren wir Probleminstanzen durch Fakten folgender Form:
+% \newpage
+\vspace{-1mm}
+\begin{verbatim}
+ lNode(X,Y,L).   % lokaler Endknoten an Position (X,Y) erzeugt Last L
+ mNode(X,Y,B,C). % möglicher Metroknoten an Position (X,Y) mit maximaler
+                 % Kapazität B und Maximalanzahl C lokaler Endknoten
+ metros(N).      % Anzahl N von zu verwendenden Metroknoten
+ maxLoss(M).     % Schranke M abgetrennter Endknoten bei doppeltem Ausfall
+\end{verbatim}
+
+\noindent
+Z.B.\ wird das in Abbildung~\ref{fig:metro} (links) dargestellte Netzplanungsproblem
+durch folgende Fakten (mit positiven Integer-Koordinaten) beschrieben:
+\vspace{-1mm}
+\begin{verbatim}
+ lNode(1,1,77).     lNode(1,2,53).     lNode(2,2,59).     lNode(4,1,47).
+ mNode(1,3,160,3).  mNode(2,3,200,3).  mNode(3,1,130,2).  mNode(3,2,180,3).
+ mNode(3,3,240,4).  mNode(4,2,240,4).  metros(3).         maxLoss(2).
+\end{verbatim}
+
+\noindent
+Eine Lösung, d.h.\ eine Menge von Metroknoten und ihre Verbindungen
+mit lokalen Endknoten, sodass die oben beschriebenen (harten) Bedingungen erf\"ullt sind,
+wird durch Atome folgender Form repräsentiert:% 
+\vspace{-1mm}
+\begin{verbatim}
+ metro(MX1,MY1) ... metro(MXn,MYn) % Metroknoten an (MXi,MYi)
+ wires(LX1,LY1,MX1,MY1) ...        % Verbindungen von lokalen Endknoten an
+ wires(LXm,LYm,MXm,MYm)            % (LXi,LYi) zu Metroknoten an (MXi,MYi)
+\end{verbatim}
+Die in Abbildung~\ref{fig:metro} (rechts) dargestellte Lösung wird z.B.\
+durch die folgenden Atome innerhalb einer Antwortmenge beschrieben:
+\vspace{-1mm}
+\begin{verbatim}
+ metro(2,3) metro(3,1) metro(3,2)
+ wires(1,1,2,3) wires(1,1,3,1) wires(1,2,2,3) wires(1,2,3,2)
+ wires(2,2,2,3) wires(2,2,3,2) wires(4,1,3,1) wires(4,1,3,2)
+\end{verbatim}
+
+% \paragraph{Beispiel.}
+
+% Eine kleines Beispiel könnte wie folgt aussehen:
+% \vspace{-1mm}
+% \begin{verbatim}
+% metros(3).
+% maxLoss(2).
+% lNode(1,1,77). lNode(2,2,59). lNode(1,2,53). lNode(4,1,47).
+% mNode(2,4,211,5). mNode(3,2,609,2). mNode(1,4,714,6).
+% mNode(4,3,17,2).  mNode(3,4,649,3). mNode(4,2,635,6).
+% mNode(2,3,644,3). mNode(1,3,401,3). mNode(3,3,422,5).
+% mNode(3,1,299,4).
+% \end{verbatim}
+
+% mit der dazugehörigen optimalen Antwortmenge:
+% \begin{verbatim}
+% $ gringo inst1.lp enc.lp | clasp
+% > [...]
+% > Answer: 4
+% > metro(3,2) metro(1,3) metro(3,1)
+% > wires(1,1,1,3) wires(1,1,3,1) wires(2,2,3,2) wires(2,2,3,1) 
+% > wires(1,2,1,3) wires(1,2,3,1) wires(4,1,3,2) wires(4,1,3,1)
+% > Optimization: 20
+% > OPTIMUM FOUND
+% \end{verbatim}
+
+\paragraph{Framework.}
+
+\noindent
+In dem Archiv \href{http://www.cs.uni-potsdam.de/wv/lehre/11WS/11-Antwortprog/metro.zip}{\texttt{metro.zip}} finden Sie die Datei \texttt{metro.lp} und zwölf Beispielinstanzen.
+Die Datei \texttt{metro.lp} ist von Ihnen mit Ihrem ASP-Encoding zu ergänzen,
+sodass \emph{optimale} Antwortmengen zu Lösungen mit minimalen aufsummierten
+Verbindungsstrecken korrespondieren.
+Wenn Sie Ihr Encoding einreichen,
+dann müssen die folgenden Zeilen in \texttt{metro.lp} enthalten sein:%
+\footnote{Diese Anweisungen sorgen dafür, dass alle Atome, die nicht zur Repräsentation von Lösungen gehören, bei der Ausgabe von Antwortmengen ausgeblendet werden.}
+\vspace{-1mm}
+\begin{verbatim}
+ #hide.
+ #show metro/2.
+ #show wires/4.
+\end{verbatim}
+\vspace{-1mm}
+{\small\sf Sie m\"ussen Ihr Encoding in einer Datei mit dem Namen \texttt{metro.lp}
+           einreichen.
+           Neben \texttt{metro/2} und \texttt{wires/4} d\"urfen in der eingereichten Version keine weiteren
+           Pr\"adikate in der Ausgabe enthalten    sein!}%
+
+\paragraph{Formalitäten.}
+%
+Sie können die Praktikumsaufgabe in Gruppen von \textbf{bis zu zwei} Studenten gemeinsam bearbeiten.
+Verschiedene Gruppen müssen verschiedene Lösungen einreichen.
+Bei Plagiaten wird die Praktikumsaufgabe für alle beteiligten Gruppen als ``nicht bestanden'' gewertet.
+Reichen Sie Ihr Encoding bitte bis zum \textbf{05.02.2012}
+über die \href{http://yeti.haiti.cs.uni-potsdam.de/student/showPractical.do?practicalId=29}{YETI-Plattform} ein.
+(Alle Gruppenmitglieder müssen bei YETI registriert werden!)
+% Tragen Sie dort alle Ihre Gruppenmitglieder ein.
+Achten Sie darauf, dass Sie Ihr Encoding in einer Datei mit dem Namen \code{metro.lp} einreichen,
+wobei der Dateiname ausschließlich Kleinbuchstaben enthält.
+
+\noindent
+Neben den zwölf vorgegebenen Instanzen
+testen wir Ihr Encoding auf weiteren Ihnen unbekannten Instanzen.
+Auch auf diesen weiteren Instanzen muss Ihr Encoding \emph{korrekt} funktionieren,
+d.h.\ (im Falle der Terminierung innerhalb weniger Minuten) \textbf{eine} optimale Lösung liefern,
+damit die Praktikumsaufgabe als bestanden gilt.
+Wenn Sie Ihr Encoding bei YETI hochladen, wird es dort (mit geringer zeitlicher Verz\"ogerung)
+automatisch getestet.
+Falls dabei Fehler auftreten,
+d.h.\ eine optimale Lösung wurde nicht ermittelt,
+k\"onnen Sie diese den Statusmeldungen von YETI entnehmen.
+Zur Analyse der resultierenden Effizienz von Encodings werden wir ein Vergleichsencoding 
+bei YETI hochladen, das Ihnen einen Anhalts\-punkt bzgl.\ der Performanz Ihres
+eigenen Encodings gibt.
+
+\noindent{\small\sf
+\textbf{Bonus:}
+Encodings, die eine ähnliche Performanz wie unser Vergleichsencoding erzielen,
+werden mit bis zu 2 Bonuspunkten auf die Klausur honoriert.}
+
+\paragraph{Empfehlungen und Hinweise:}\vspace{-2mm}
+\begin{itemize}
+\item Überlegen Sie sich, welche Bedingungen Sie zur Ermittlung (optimaler) L\"osungen
+      testen wollen und definieren Sie geeignete Pr\"adikate, die diese Tests erm\"oglichen.
+% eine allgemeine (geeignete) Repräsentation, um Pfade zu beschreiben, bevor Sie Ihre Idee in einem ASP-Encoding umsetzen.
+\item Die resultierende Effizienz von Encodings kann nicht unabhängig von dem
+      zugrunde liegende Lösungsverfahren ermittelt werden.
+      Die folgenden Faustregeln können dennoch  (unabhängig von Lösungsverfahren) als universell betrachtet werden:
+      \vspace{-3mm}
+      \begin{enumerate}\itemsep-1.5pt
+      \item Platzbedarf und Laufzeit korrespondieren zueinander.
+            Wenn die gleichen Sachverhalte mit weniger (instanziierten) Regeln ausgedrückt werden können,
+            dann sollte die Suche nach Antwortmengen davon profitieren.
+            (Verwenden Sie möglichst Default-Negation anstelle von Auflistungen komplementärer Werte.)
+      \item Regeln und Integritätsbedingungen sind umso stärker, je weniger (nicht statisch bestimmte)
+            Vorbedingungen in ihren Körpern auftreten.
+            (Vermeiden Sie für die Korrektheit unerhebliche Fallanalysen in Regelkörpern.)
+      \item Die Suche profitiert i.d.R.\ davon, dass nicht-triviale inhärente Eigenschaften von (optimalen)
+            Lösungen in``redundanten'' Bedingungen explizit gemacht werden, weil sie dann nicht
+            erst auf Fallbasis über Suche ermittelt werden müssen.
+      \end{enumerate}
+      \vspace{-3mm}
+\item Verwenden Sie die Kommandozeilenoption \texttt{--solution-recording} zur
+      Effizienz\-steigerung bei der Optimierung von L\"osungen, z.B.\ wie in dem folgenden Aufruf:\newline
+\begin{tabular}{@{}l}%
+\texttt{[user@local \textasciitilde] clingo metro.lp inst1.lp --solution-recording 0}
+\end{tabular}
+\item Wenn Sie an einer Stelle nicht weiterkommen, können Sie sich gern an uns wenden.
+      Wir versuchen alle Fragen bestmöglich zu beantworten.
+      Fragen k\"onnen Sie entweder pers\"onlich an uns richten oder per Mail an:
+      \href{mailto:asp1@cs.uni-potsdam.de}{\texttt{asp1@cs.uni-potsdam.de}}.
+\item Fangen Sie bald mit der Bearbeitung der Aufgabe an, damit Ihnen die Zeit nicht davonläuft.
+      (Sollten Sie trotzdem Schwierigkeiten mit der Einhaltung des Termins
+       haben, dann wenden Sie sich bitte an uns, anstatt eine beliebige Lösung
+       zu kopieren!)
+% \item Behalten Sie Ihren Quelltext für sich.
+%       Sie helfen Ihren Kommilitonen nicht, wenn Sie Ihren Quelltext weitergeben, da das Nachvollziehen eines fremden Encodings schwieriger ist als ein eigenes zu entwerfen.
+\end{itemize}
+
+\end{PraktikumsAufgabe}
+\end{document}

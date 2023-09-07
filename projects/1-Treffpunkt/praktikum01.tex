@@ -1,0 +1,233 @@
+\documentclass[a4paper,12pt,ngerman]{article}
+
+\usepackage[ngerman]{babel}
+\usepackage[utf8]{inputenc}
+%\usepackage{listings}
+%\lstset{basicstyle=\ttfamily\small}
+%\usepackage{verbatim}
+%\usepackage{dingbat}
+\usepackage{amsmath,amssymb}
+\usepackage{exercises}
+\usepackage{../../../asp}
+
+\sloppy
+
+\begin{document}
+\begin{PraktikumsAufgabe}{1}{(Treffpunkt)}
+\vspace*{-4mm}
+\paragraph{Problembeschreibung.}
+%
+In dieser Praktikumsaufgabe sollen Sie ein Logikpuzzle, bei dem innerhalb eines quadratischen Gitters Pfade zu einem gemeinsamen Treffpunkt gesucht sind, mit einem ASP-Encoding lösen.
+Initial sind zwischen zwei und vier Zellen des Gitters mit nicht-negativen ganzen Zahlen belegt.
+Diese vorgegebenen Zellen bilden die Startpunkte der gesuchten Pfade, die auf einer freien Zelle des Gitters, dem Treffpunkt, zusammenlaufen sollen.
+Die Pfade können horizontal oder vertikal aneinandergrenzende Gitterzellen miteinander verbinden.
+Sie dürfen sich weder verzweigen, überschneiden, noch eine der initial belegten Zellen einfach oder eine freie Zelle mehrfach erreichen.
+Wie bereits erwähnt sollen alle Pfade an einem gemeinsamen Treffpunkt enden.
+Unterwegs muss jeder Pfad so oft abbiegen, wie es die Zahl auf seinem jeweiligen Startpunkt verlangt.
+
+\noindent
+Die folgende Darstellung illustriert Problemstellungen und -lösungen an einem Beispiel:
+{\footnotesize
+\begin{verbatim}
+Instance:
+number(1,1,1). number(2,1,1). number(3,3,0). cell(1..3,1..3).
+
+     --- --- ---
+    |   |   |   |
+  1 | 1 |   |   |
+    |   |   |   |
+     --- --- ---
+    |   |   |   |
+  2 | 1 |   |   |
+    |   |   |   |
+     --- --- ---
+    |   |   |   |
+  3 |   |   | 0 |
+    |   |   |   |
+     --- --- ---
+      1   2   3
+
+Answer 1:
+link(3,1,3,2) link(2,1,3,1) link(2,2,3,2) link(1,2,2,2) link(1,1,1,2) link(3,3,3,2)
+
+     --- --- ---
+    |   |   |   |
+  1 | 1-|-+ |   |
+    |   | | |   |
+     --- --- ---
+    |   | | |   |
+  2 | 1 | + |   |
+    | | | | |   |
+     --- --- ---
+    | | | | |   |
+  3 | +-|-+-|-0 |
+    |   |   |   |
+     --- --- ---
+      1   2   3
+
+\end{verbatim}%
+}
+
+\noindent
+Das obere der abgebildeten Gitter gibt eine Problemstellung wieder.
+Dabei ist die Seitenlänge des quadratischen Gitters mit~\code{3} festgelegt.
+Die initial belegten Zellen sind (\code{1},\code{1}), (\code{2},\code{1}) und (\code{3},\code{3}).
+Ihre Belegungen werden durch die Atome
+\code{number(1,1,1)}, \code{number(2,1,1)} und \code{number(3,3,0)} repräsentiert.
+Anhand der Problemstellung erkennen wir, dass drei Pfade gesucht sind, wobei die von (\code{1},\code{1}) und (\code{2},\code{1}) ausgehenden
+Pfade jeweils einmal und der von (\code{3},\code{3}) ausgehende Pfad keinmal abbiegen soll, bevor alle drei Pfade an einem Treffpunkt zusammenlaufen.
+
+\noindent
+Die (eindeutige) Lösung für diese Problemstellung ist in dem unteren der abgebildeten Gitter dargestellt.
+Sie besteht aus den Pfaden
+$\langle$(\code{1},\code{1}),(\code{1},\code{2}),(\code{2},\code{2}),(\code{3},\code{2})$\rangle$,
+$\langle$(\code{2},\code{1}),(\code{3},\code{1}),(\code{3},\code{2})$\rangle$
+und
+$\langle$(\code{3},\code{3}),(\code{3},\code{2})$\rangle$.
+Wir erkennen, dass die freie Zelle (\code{3},\code{2}) der gemeinsame Treffpunkt der Pfade ist, die von ihren Startpunkten aus nur über frei Zellen führen, sich nicht verzweigen oder überschneiden, nicht umkehren und so oft abbiegen, wie es die Zahl auf dem jeweiligen Startpunkt verlangt.
+Die drei Pfade der Lösung werden durch die Atome
+\code{link(3,1,3,2)}, \code{link(2,1,3,1)}, \code{link(2,2,3,2)},
+\code{link(1,2,2,2)}, \code{link(1,1,1,2)} und \code{link(3,3,3,2)}
+repräsentiert, die jeweils die (direkt) miteinander verbundenen Paare von Zellen angeben.
+Z.B.\ steht das Atom \code{link(1,1,1,2)} dafür, dass der vom Startpunkt (\code{1},\code{1}) ausgehende Pfad zuerst die Zelle (\code{1},\code{2}) erreicht
+(bevor er von dort aus über die Zelle (\code{2},\code{2}) zum Treffpunkt (\code{3},\code{2}) führt).
+Beobachten Sie, dass die Reihenfolge von Werten in Atomen der Form \code{link(X1,Y1,X2,Y2)}
+mit der Reihenfolge korrespondiert, in der einer der gesuchten Pfade die horizontal
+oder vertikal aneinandergrenzenden Zellen (\code{X1},\code{Y1}) und 
+(\code{X2},\code{Y2}) miteinander verbindet.
+(Das bedeutet z.B., dass \code{link(1,2,1,1)} nicht zur Repräsentation des von (\code{1},\code{1}) ausgehenden Pfades gehört.)
+Neben den die Pfade einer Lösung repräsentierenden Atomen der Form \code{link(X1,Y1,X2,Y2)}
+darf eine Antwortmenge keine weiteren Atome des Pr\"adikats \code{link/4} enthalten.
+(Das bedeutet z.B.,  dass \code{link(1,3,2,3)} nicht zur Repräsentation der obigen Pfade gehört.)
+
+\paragraph{Aufgabenstellung.}
+%
+Schreiben Sie ein ASP-Encoding % (\code{meeting.lp})
+in der Eingabesprache des Grounders \texttt{gringo} (bzw.\ \texttt{clingo}),
+sodass die Antwortmengen für eine gegebene Instanz
+eins-zu-eins zu den Lösungen des durch die Instanz beschriebenen Puzzles korrespondieren.
+Die Instanz besteht dabei aus Fakten der Form \code{cell(1..n,1..n).} und \code{number(X,Y,N).},
+die die Zellen eines quadratischen Gitters und die mit nicht-negativen ganzen Zahlen
+belegten Zellen des Gitters definieren.
+%\code{cell(1..n)} gibt die Domäne für die Koordinaten \code{X} und \code{Y} an, wodurch die Größe des Feldes beschränkt wird.
+% \code{number(Y,X,M)} bedeutet, dass die Zahl \code{M} sich auf den Koordinaten (\code{x,Y}) befindet.
+%
+% \noindent
+Eine Lösung soll wie oben beschrieben durch Atome der Form
+\code{link(X1,Y1,X2,Y2)} repräsentiert werden.
+
+\paragraph{Framework.}
+
+\noindent
+In dem Archiv \texttt{meeting.zip} finden Sie die Datei \texttt{meeting.lp} und zehn Beispielinstanzen.
+Die Datei \texttt{meeting.lp} ist von Ihnen mit Ihrem ASP-Encoding zu ergänzen.
+Wenn Sie Ihr Encoding einreichen,
+dann müssen die folgenden Zeilen in \texttt{meeting.lp} enthalten sein:
+\footnote{Diese Anweisungen sorgen dafür, dass alle Atome, die nicht zur Repräsentation von Lösungen gehören, bei der Ausgabe von Antwortmengen ausgeblendet werden.}
+
+\begin{tabular}{l}
+\code{\#hide.}\\
+\code{\#show link/4.}\\
+\end{tabular}
+
+\noindent
+{\small\sf Sie m\"ussen Ihr Encoding in einer Datei mit dem Namen \texttt{meeting.lp}
+           einreichen.
+           Neben \code{link/4} d\"urfen in der eingereichten Version keine weiteren
+           Pr\"adikate in der Ausgabe eingeblendet sein!}
+
+\noindent
+Weiterhin finden Sie in \texttt{meeting.zip} das Python-Skript \texttt{graphic1.py},
+welches die erste Antwortmenge mit ASCII-Zeichen visualisiert.
+Dieses Skript kann optional zum Debuggen des Encodings genutzt werden.
+Dazu wird die Ausgabe in das Skript ``gepiped'', z.B.:
+
+\noindent
+%\begin{verbatim}
+\begin{tabular}{@{}l}%
+\texttt{[user@local \textasciitilde] clingo meeting.lp grid\_01.lp | python -O graphic1.py -s 3}\\
+\end{tabular}
+% \end{verbatim}
+
+\noindent
+Die Option \texttt{-s} steht für die Größe des Puzzles,
+z.B.\ \texttt{3} f\"ur \texttt{grid\_01.lp}.
+Anders als bei der Einreichungsversion sollte für die Visualisierung 
+auch das Prädikat \texttt{number/3} in der Ausgabe eingeblendet sein:
+
+\begin{tabular}{l}
+\code{\#hide.}\\
+\code{\#show link/4.}\\
+\code{\#show number/3.}
+\end{tabular}
+
+% \paragraph{Randbedingungen.}
+% %
+% Das Bestimmen von Pfaden für quadratische Gitter ist ein kombinatorisches Suchproblem, dessen Schwierigkeit mit steigender Gittergröße deutlich zunimmt.
+% Um eine Lösung in akzeptabler Zeit (innerhalb fünf Minuten) zu bestimmen, ist es wichtig, einen ``guten Lösungsansatz'' zu haben.
+% Neben der Korrektheit berücksichtigen unsere Tests daher auch die Effizienz beim Finden \textbf{einer} Lösung für eine Problemstellung.
+% Hier erwarten wir, dass Ihre Implementation auf Gittern auf allen Testinstanzen in akzeptabler Zeit läuft.
+
+% \noindent
+% Wenn Ihre Implementation dieses Kriterium nicht erfüllt,
+% dann ist sie als Lösung nicht akzeptabel.
+
+
+% \noindent{\small\sf
+% Weil ein ``guter Lösungsansatz'' für die erfolgreiche Behandlung größerer Gitter entscheidend ist, werden effiziente Lösungen mit \textbf{bis zu 2 Bonuspunkten auf die Klausur} honoriert.}
+
+\paragraph{Formalitäten.}
+%
+Sie können die Praktikumsaufgabe in Gruppen von \textbf{bis zu zwei} Studenten gemeinsam bearbeiten.
+Verschiedene Gruppen müssen verschiedene Lösungen einreichen.
+Bei Plagiaten wird die Praktikumsaufgabe für alle beteiligten Gruppen als ``nicht bestanden'' gewertet.
+Reichen Sie Ihr Encoding bitte bis zum \textbf{06.12.2010}
+über die von der Moodle-Seite zur Vorlesung aus verlinkte YETI-Plattform ein.
+(Alle Gruppenmitglieder müssen bei YETI einen Account haben und als 
+ Gruppenmitglieder registriert sein!)
+% Tragen Sie dort alle Ihre Gruppenmitglieder ein.
+Achten Sie darauf, dass Sie Ihr Encoding in einer Datei mit dem Namen \code{meeting.lp} einreichen,
+wobei der Dateiname ausschließlich Kleinbuchstaben enthält.
+
+\noindent
+Neben den zehn vorgegebenen Instanzen (mit jeweils einer eindeutigen L\"osung)
+testen wir Ihr Encoding auf weiteren Ihnen unbekannten Instanzen.
+Auch auf diesen weiteren Instanzen muss Ihr Encoding korrekt funktionieren,
+damit die Praktikumsaufgabe als bestanden gilt.
+Wenn Sie Ihr Encoding bei YETI hochladen, wird es dort automatisch getestet
+(mit geringer zeitlicher Verz\"ogerung).
+Falls dabei Fehler auftreten, k\"onnen Sie diese den Statusmeldungen von YETI entnehmen.
+Zur Analyse der Effizienz von Encodings werden wir ein Vergleichsencoding 
+bei YETI hochladen, das Ihnen einen Anhalts\-punkt bzgl.\ der Performanz Ihres
+eigenen Encodings gibt.
+
+\noindent{\small\sf
+Encodings, die eine \"ahnliche Performanz wie unser Vergleichsencoding erzielen,
+werden mit \textbf{bis zu 2 Bonuspunkten auf die Klausur} honoriert.}
+
+
+\paragraph{Empfehlungen und Hinweise:}%\vspace{-2mm}
+\begin{itemize}
+\item Überlegen Sie sich, welche Bedingungen Sie zur Charakterisierung von L\"osungen
+      testen wollen und definieren Sie geeignete Pr\"adikate, die diese Tests erm\"oglichen.
+% eine allgemeine (geeignete) Repräsentation, um Pfade zu beschreiben, bevor Sie Ihre Idee in einem ASP-Encoding umsetzen.
+\item Verwenden Sie die Kommandozeilenoption \texttt{--solution-recording} zur
+      Effizienz\-steigerung bei der Berechnung aller L\"osungen, z.B.\ wie in dem folgenden Aufruf:
+
+\begin{tabular}{@{}l}%
+\texttt{[user@local \textasciitilde] clingo meeting.lp grid\_01.lp --solution-recording 0}
+\end{tabular}
+\item Wenn Sie an einer Stelle nicht weiterkommen, können Sie sich gern an uns wenden.
+      Wir versuchen alle Fragen bestmöglich zu beantworten.
+      Fragen k\"onnen Sie entweder pers\"onlich an uns richten oder per Mail an:
+      \texttt{asp1@cs.uni-potsdam.de}.
+\item Fangen Sie bald mit der Bearbeitung der Aufgabe an, damit Ihnen die Zeit nicht davonläuft.
+      (Sollten Sie trotzdem Schwierigkeiten mit der Einhaltung des Termins
+       haben, dann wenden Sie sich bitte an uns, anstatt eine beliebige Lösung
+       zu kopieren!)
+% \item Behalten Sie Ihren Quelltext für sich.
+%       Sie helfen Ihren Kommilitonen nicht, wenn Sie Ihren Quelltext weitergeben, da das Nachvollziehen eines fremden Encodings schwieriger ist als ein eigenes zu entwerfen.
+\end{itemize}
+
+\end{PraktikumsAufgabe}
+\end{document}
