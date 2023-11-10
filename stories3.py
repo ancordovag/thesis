@@ -147,7 +147,42 @@ sudoku(X,Y,N). % the cell [X,Y] contains number N ''',
                   1 { sudoku(X,Y,N) : poss(X,Y,N) } 1 :- dim(Y), dim(N).
                   % For each digit and subgrid, choose only one possibility for each subgrid identifier in map
                   1 { sudoku(X,Y,N) : poss(X,Y,N), map(X,Y,S) } 1 :- dim(N), subgrid(S).
+                  % It cannot be the case that a initial value is not a sudoku
                   :- initial(X,Y,N), not sudoku(X,Y,N). ''',
+          "encoding":'''% The size of the subgrid is defined
+subgrid_size(3).
+
+% The possible digits are from 1 to S times S, being S the size of the subgrid
+dim(1..S*S) :- subgrid_size(S).
+
+% The identifier of the subgrid goes from 0 to the possible digits minus 1
+subgrid(D-1) :- dim(D).
+
+% A map is defined between X and Y, indicating the number of subgrid in which they belong
+map(X,Y,((X-1)/S)*S + (Y-1)/S) :- dim(X), dim(Y), subgrid_size(S).
+
+% A predicate that indicates which cell has a value in the beginning
+init(X,Y) :- initial(X,Y,N).
+
+% the initial value of each cell in another predicate poss
+poss(X,Y,N) :- initial(X,Y,N).
+% Generation of all possible digits for the cells that were not initialized 
+poss(X,Y,D) :- dim(X), dim(Y), dim(D), not init(X,Y).
+
+% For each cell, choose only one possibility of digit 
+1 { sudoku(X,Y,N) : poss(X,Y,N) } 1 :- dim(X), dim(Y).
+% For each column and digit, choose only one possibility of row 
+1 { sudoku(X,Y,N) : poss(X,Y,N) } 1 :- dim(X), dim(N).
+% For each row and digit, choose only one possibility of column
+1 { sudoku(X,Y,N) : poss(X,Y,N) } 1 :- dim(Y), dim(N).
+% For each digit and subgrid, choose only one possibility for each subgrid identifier in map
+1 { sudoku(X,Y,N) : poss(X,Y,N), map(X,Y,S) } 1 :- dim(N), subgrid(S).
+
+% It cannot be the case that a initial value in cell (X,Y) is not the same as sudoku in cell (X,Y)
+:- initial(X,Y,N), not sudoku(X,Y,N).
+
+% Show the goal predicate
+#show sudoku/3.'''
          }
 
 seeknumbers = {"story":"seeknumbers",
@@ -217,6 +252,50 @@ xhint(XX,YY,N-1,DD) :- xhint(X,Y,N,D), N>=1, not hint(X,Y,_), edge(X,Y,XX,YY,DD)
 :- hint(X,Y,_), not xhint(X,Y,0,_).
 % It cannot be the case that the counter xhint is not 0 in the final cell
 :-  final(X,Y), not xhint(X,Y,0,_). 
+
+% Show output predicate
+#show path/4.''',
+               "encoding":'''% Generates a predicate called neighbour that specify if it is vertical (v) or horizontal (h). 4 rules, one for each direction.
+neighbour(X,Y,XX,YY,D) :- XX=X, YY=Y+1, D=v, cell(X,Y), cell(XX,YY).
+neighbour(X,Y,XX,YY,D) :- XX=X, YY=Y-1, D=v, cell(X,Y), cell(XX,YY).
+neighbour(X,Y,XX,YY,D) :- XX=X+1, YY=Y, D=h, cell(X,Y), cell(XX,YY).
+neighbour(X,Y,XX,YY,D) :- XX=X-1, YY=Y, D=h, cell(X,Y), cell(XX,YY).
+
+% Generates one edge between cell (X,Y) and one of its neighbours (XX,YY), if (X,Y) is not final. 
+1 { edge(X,Y,XX,YY,D) : neighbour(X,Y,XX,YY,D) } 1 :- cell(X,Y), not final(X,Y).
+
+% Path is the same as edge, without specifying vertical or horizontal, expressed by variable D.
+path(X,Y,XX,YY) : edge(X,Y,XX,YY,_).
+
+% It cannotbe the case that there is not incoming edge to a cell if that cell is not the first one
+:- not 1 { edge(X,Y,XX,YY,D) : neighbour(X,Y,XX,YY,D) } 1, cell(XX,YY), not first(XX,YY).
+
+% The first cell is visited
+visited(X,Y) :- first(X,Y).
+
+% If a cell (X,Y) is visited, and there is an edge between (X,Y) and (XX,YY), then cell (X,Y) is also visited
+visited(XX,YY) :- visited(X,Y), edge(X,Y,XX,YY,_).
+
+% it cannot be the case that a cell is not visited
+:- cell(X,Y), not visited(X,Y).
+
+% xhint is a counter that starts with N in the cell (XX,YY) when there is an edge between hint cell (X,Y) and saves direction D
+xhint(XX,YY,N,D) :- hint(X,Y,N), edge(X,Y,XX,YY,D).
+
+% xhint in cell (XX,YY), and it is 0 in the cell (XX,YY)
+xhint(XX,YY,0,D) :- first(X,Y),  edge(X,Y,XX,YY,D).
+
+% If there is no hint in cell (X,Y), then the next connected cell has the same counter if the direction if the same
+xhint(XX,YY,N,DD) :- xhint(X,Y,N,D), not hint(X,Y,_), edge(X,Y,XX,YY,DD), D=DD.
+
+% If there is no hint in cell (X,Y), but the direction of the cell (X,Y) and the next one is not the same, then the counter xhint decreases by one
+xhint(XX,YY,N-1,DD) :- xhint(X,Y,N,D), N>=1, not hint(X,Y,_), edge(X,Y,XX,YY,DD), D!=DD.
+
+% It cannot be the case that the counter xhint is not 0 in the cell of a hint
+:- hint(X,Y,_), not xhint(X,Y,0,_).
+
+% It cannot be the case that the counter xhint is not 0 in the final cell
+:-  final(X,Y), not xhint(X,Y,0,_).
 
 % Show output predicate
 #show path/4.'''
@@ -295,7 +374,39 @@ Facts of the predicate wall/4 always have the form wall(X,Y,X,Y+1) or wall(X,Y,X
             #minimize{ T : at(X,Y,T) }.
             
             % Show the output predicate
-            #show at/3.'''
+            #show at/3.''',
+            "encoding":'''% The possible next movements of the player          
+            next(X,Y,X+1,Y) :- field(X,Y), field(X+1,Y), not wall(X,Y,X+1,Y).
+            next(X,Y,X,Y+1) :- field(X,Y), field(X,Y+1), not wall(X,Y,X,Y+1).
+            next(X,Y,X,Y)   :- field(X,Y).
+            next(X,Y,XX,YY) :- next(XX,YY,X,Y).
+
+            % The player is at start position at timestep 0
+            at(X,Y,0) :- start(X,Y).
+            % The player chooses one position from the possible next movements if it is not at the goal cell
+            1 { at(XX,YY,T+1) : next(X,Y,XX,YY) } 1 :- at(X,Y,T), not goal(X,Y), maxsteps(S), T < S.            
+            % The minotaur's movements depending of the possible next movement of the player     
+            mino_step(X,Y,XX,YY,( 1, 0)) :- field(X,Y), field(XX,YY), X < XX, next(X,Y,X+1,Y).
+            mino_step(X,Y,XX,YY,(-1, 0)) :- field(X,Y), field(XX,YY), X > XX, next(X,Y,X-1,Y).
+            mino_step(X,Y,XX,YY,( 0, 1)) :- field(X,Y), field(XX,YY), Y < YY, next(X,Y,X,Y+1), not mino_step(X,Y,XX,YY,( 1, 0)), not mino_step(X,Y,XX,YY,(-1, 0)).
+            mino_step(X,Y,XX,YY,( 0,-1)) :- field(X,Y), field(XX,YY), Y > YY, next(X,Y,X,Y-1), not mino_step(X,Y,XX,YY,( 1, 0)), not mino_step(X,Y,XX,YY,(-1, 0)).
+            mino_step(X,Y,XX,YY,( 0, 0)) :- field(X,Y), field(XX,YY), not mino_step(X,Y,XX,YY,( 1, 0)), not mino_step(X,Y,XX,YY,(-1, 0)), not mino_step(X,Y,XX,YY,( 0, 1)), not mino_step(X,Y,XX,YY,( 0,-1)).
+            % The minotaur's next position as the actual position plus the minotaur's movement
+            mino_next(X,Y,XX,YY,X+DX1+DX2,Y+DY1+DY2) :- mino_step(X,Y,XX,YY,(DX1,DY1)), mino_step(X+DX1,Y+DY1,XX,YY,(DX2,DY2)).
+            % The minotaur is at the minotaur's start position at timestep 0
+            mino(X,Y,0) :- mino(X,Y).
+            % The minotaur's next position depending on the actual position and the next position of the player
+            mino(XXX,YYY,T+1) :- mino(X,Y,T), maxsteps(S), T < S, at(XX,YY,T+1), mino_next(X,Y,XX,YY,XXX,YYY).
+            % The player and the minotaur can not be at the same cell at the same time        
+            :- at(X,Y,T), mino(X,Y,T).
+            % The goal is achieved when the player is at cell goal
+            goal :- at(X,Y,T), goal(X,Y).
+            % It can not be the case, that the goal is not achieved
+            :- not goal.            
+            % Optimization: minimize the time T            
+            #minimize{ T : at(X,Y,T) }.
+            % Show the output predicate
+            #show at/3. '''
 }
 
 creek = {"story":"creek",
@@ -343,14 +454,65 @@ first_visit(M,N) :- mini_x(M), mini_y(N).
 visit(X+DX,Y+DY) :- first_visit(X,Y), path(X,Y,X+DX,Y+DY), dir(DX,DY).
 % Declare a cell as visited if there is an incoming path from a already visited cell
 visit(X+DX,Y+DY) :- visit(X,Y), path(X,Y,X+DX,Y+DY), dir(DX,DY).
-''',
+% Show output predicate black
+#show black/2.''',
         "constraints": '''% It cannot be that a white cell is not visited
-:- not visit(X,Y), white(X,Y).
+:- not visit(X,Y), white(X,Y).''',
+         "normal_rules":'''% The possible aditions for a hint cell
+plus(0,0). plus(0,1). plus(1,0). plus(1,1).
+% Define all possible directions
+dir(0,1). dir(0,-1). dir(1,0). dir(-1,0).
+% Define a path between 2 white cells when they are adjacent
+path(X,Y,P,Q) :- white(X,Y), white(P,Q), |P-X| + |Q-Y| = 1.
+% If a cell is not black, it should be white
+white(X,Y) :- not black(X,Y), cell(X,Y).
+% If a cell is not white, it should be black
+black(X,Y) :- not white(X,Y), cell(X,Y).
+% Find the minimum column containing a white cell 
+mini_x(M) :- M = #min{X,Y : white(X,Y)}.
+% Find the minimum row containing a white cell in the minimum column containing a white cell
+mini_y(N) :- N = #min{Y : white(M,Y), mini_x(M)}.
+% Declare the first visit as the minimum column and minimum row
+first_visit(M,N) :- mini_x(M), mini_y(N).
+% Declare a cell as visited if there is an incoming path from the first visited cell
+visit(X+DX,Y+DY) :- first_visit(X,Y), path(X,Y,X+DX,Y+DY), dir(DX,DY).
+% Declare a cell as visited if there is an incoming path from a already visited cell
+visit(X+DX,Y+DY) :- visit(X,Y), path(X,Y,X+DX,Y+DY), dir(DX,DY).
+% Define cells to be blackened among the subset of possible cells, when there is a hint in cell X,Y,
+black(X+A,Y+B) :- cell(X+A,Y+B), plus(A,B), hint(X,Y,N).''',
+         "integrity_constraints":'''% It cannot be that a white cell is not visited
+:- not visit(X,Y), white(X,Y). ''',
+        "encoding":'''% The possible aditions for a hint cell
+plus(0,0). plus(0,1). plus(1,0). plus(1,1).
+% Define all possible directions
+dir(0,1). dir(0,-1). dir(1,0). dir(-1,0).
+% Define minimum N and maximum N cells to be blackened among the subset of possible cells, when there is a hint in cell X,Y, 
+N {black(X+A,Y+B) : cell(X+A,Y+B), plus(A,B)} N :- hint(X,Y,N).
 
+% Define a path between 2 white cells when they are adjacent
+path(X,Y,P,Q) :- white(X,Y), white(P,Q), |P-X| + |Q-Y| = 1.
+
+% If a cell is not black, it should be white
+white(X,Y) :- not black(X,Y), cell(X,Y).
+% If a cell is not white, it should be black
+black(X,Y) :- not white(X,Y), cell(X,Y).
+
+% Find the minimum column containing a white cell 
+mini_x(M) :- M = #min{X,Y : white(X,Y)}.
+% Find the minimum row containing a white cell in the minimum column containing a white cell
+mini_y(N) :- N = #min{Y : white(M,Y), mini_x(M)}.
+% Declare the first visit as the minimum column and minimum row
+first_visit(M,N) :- mini_x(M), mini_y(N).
+% Declare a cell as visited if there is an incoming path from the first visited cell
+visit(X+DX,Y+DY) :- first_visit(X,Y), path(X,Y,X+DX,Y+DY), dir(DX,DY).
+% Declare a cell as visited if there is an incoming path from a already visited cell
+visit(X+DX,Y+DY) :- visit(X,Y), path(X,Y,X+DX,Y+DY), dir(DX,DY). 
+% It cannot be that a white cell is not visited
+:- not visit(X,Y), white(X,Y).
 % Show output predicate black
 #show black/2.'''} 
 
-hop = {"story":hop,
+hop = {"story":"hop",
       "problem":'''In this internship task, you are required to solve a logic puzzle using an ASP encoding. The goal of the puzzle is to find a path between predefined start and end points. The path consists of jumps of varying lengths in horizontal or vertical directions, following the pattern 1, 2, 3, 1, 2, 3, and so on. Your task is to determine the cells where you land between these jumps. Some of these cells are already provided, but without a specific order.
       Representation in ASP: We represent the side lengths of the grid, the predefined start and end points, and the predefined intermediate stops as follows through facts:
         cols(C). % Number of columns
@@ -361,3 +523,127 @@ hop = {"story":hop,
         dot(X,Y). % Predefined intermediate step
         A solution, i.e., a list of cells that are visited, is represented by atoms in the following form:
         step(X,Y,N) % Visited cells'''}
+
+yosenabe = {"story":"yosenabe",
+            "problem":'''The task of this project is to solve the Japanese grid puzzle Yosenabe using ASP. Given a grid, the task is to move each number surrounded by a frame into one of the gray areas along a straight line, respecting the following conditions:
+1. The ways of any two moved numbers must not cross or meet at any grid cell.
+2. Each gray area must be populated with at least one moved number.
+3. An area may be associated with a (positive) goal number, shown within it. If so, the numbers moved into the area must sum up exactly to the goal.
+While a number can be moved through an area, you may assume that a move stops at the first cell w.r.t. its direction of the area into which it leads.
+Representation in ASP. % There is a cell with coordinates (X,Y)
+            cell(X,Y)
+            % In the cell (X,Y) there is a number N 
+            number(X,Y,N)
+            % The cell (X,Y) belongs to the area A 
+            area(X,Y,A)
+            % The area A has a goal G to fulfill
+            goal(A,G)
+            % Expected Output: target/4. The number is moved from (X,Y) to (P,Q)
+            target(X,Y,P,Q)''',
+            "constants": '''rows: 1; ..; R.
+                         columns: 1; ..; C.
+                         numbers: 1;...; N.
+                         area: gray area.''',
+            "predicates":'''% Predicate representing the position of a number in the grid
+            position(X,Y,N)
+            % Predicate representing the direction of an area
+            direction(A,D)
+            % Predicate representing the goal number of an area
+            goal(A,G)
+            % Predicate representing the sum of numbers in an area
+            sum(A,S)''',
+            "input_predicates":'''% There is a cell with coordinates (X,Y)
+            cell(X,Y)
+            % In the cell (X,Y) there is a number N 
+            number(X,Y,N)
+            % The cell (X,Y) belongs to the area A 
+            area(X,Y,A)
+            % The area A has a goal G to fulfill
+            goal(A,G)''',
+            "output_predicate":'''% The number is moved from (X,Y) to (P,Q)
+            target(X,Y,P,Q)''',
+            "rules":'''% All the posible directions
+            dir(0,1). dir(0,-1). dir(1,0). dir(-1,0).
+% No different targets for the same number
+:- target(X,Y,I,J), I != I', target(X,Y,I',J).         
+% No different targets for the same number
+:- target(X,Y,I,J), J != J', target(X,Y,I,J').         
+% Only horizontal or vertical movements
+:- target(X,Y,I,J), X != I, Y != J.                         
+% Only one target point to one cell
+:- target(X,Y,I,J), target(X',Y',I,J), cell(X,Y) != cell(X',Y').    
+
+% The paths are not crossed
+:- target(X,Y,I,J), target(X',Y',I',J'), X = I, Y'=J', Y<=Y', Y'<=J, X'<=X, X<=I'.
+:- target(X,Y,I,J), target(X',Y',I',J'), X = I, Y'=J', Y>=Y', Y'>=J, X'<=X, X<=I'.
+:- target(X,Y,I,J), target(X',Y',I',J'), X = I, Y'=J', Y<=Y', Y'<=J, X'>=X, X>=I'.
+:- target(X,Y,I,J), target(X',Y',I',J'), X = I, Y'=J', Y>=Y', Y'>=J, X'>=X, X>=I'.
+:- target(X,Y,I,J), target(X',Y,I',J), I>I', X<X'.
+:- target(X,Y,I,J), target(X,Y',I,J'), J>J', Y<Y'.
+
+% Each gray area must be populated with at least one moved number.
+counttarget(T,A) :- T = #count{number(X,Y,Z): number(X,Y,Z), target(X,Y,I,J), area(I,J,A)}, area(_,_,A).
+:- T = 0, counttarget(T,A).
+
+% The areas have values
+total(A,S) :- S = #sum{ Z : number(X,Y,Z), target(X,Y,I,J), area(I,J,A)}, goal(A,V).
+:- total(A,S), S != V, goal(A,V).
+
+#show target/4.''',
+            "constraints":'''% For each number, there is a target related to only one area
+1 { target(X,Y,I,J) : area(I,J,A) } 1 :- number(X,Y,Z). ''',
+            
+            "normal_rules":'''% All the posible directions
+            dir(0,1). dir(0,-1). dir(1,0). dir(-1,0). 
+            counttarget(T,A) :- T = #count{number(X,Y,Z): number(X,Y,Z), target(X,Y,I,J), area(I,J,A)}, area(_,_,A).
+            target(X,Y,I,J) :- area(I,J,A), number(X,Y,Z).''',
+            "integrity_constraints":'''% No different targets for the same number
+:- target(X,Y,I,J), I != I', target(X,Y,I',J).         
+% No different targets for the same number
+:- target(X,Y,I,J), J != J', target(X,Y,I,J').         
+% Only horizontal or vertical movements
+:- target(X,Y,I,J), X != I, Y != J.                         
+% Only one target point to one cell
+:- target(X,Y,I,J), target(X',Y',I,J), cell(X,Y) != cell(X',Y'). 
+
+% The paths are not crossed
+:- target(X,Y,I,J), target(X',Y',I',J'), X = I, Y'=J', Y<=Y', Y'<=J, X'<=X, X<=I'.
+:- target(X,Y,I,J), target(X',Y',I',J'), X = I, Y'=J', Y>=Y', Y'>=J, X'<=X, X<=I'.
+:- target(X,Y,I,J), target(X',Y',I',J'), X = I, Y'=J', Y<=Y', Y'<=J, X'>=X, X>=I'.
+:- target(X,Y,I,J), target(X',Y',I',J'), X = I, Y'=J', Y>=Y', Y'>=J, X'>=X, X>=I'.
+:- target(X,Y,I,J), target(X',Y,I',J), I>I', X<X'.
+:- target(X,Y,I,J), target(X,Y',I,J'), J>J', Y<Y'. 
+% The total should match the goal
+:- total(A,S), S != V, goal(A,V).''',
+            "encoding":'''% All the posible directions
+            dir(0,1). dir(0,-1). dir(1,0). dir(-1,0).
+% No different targets for the same number
+:- target(X,Y,I,J), I != I', target(X,Y,I',J).         
+% No different targets for the same number
+:- target(X,Y,I,J), J != J', target(X,Y,I,J').         
+% Only horizontal or vertical movements
+:- target(X,Y,I,J), X != I, Y != J.                         
+% Only one target point to one cell
+:- target(X,Y,I,J), target(X',Y',I,J), cell(X,Y) != cell(X',Y').    
+
+% The paths are not crossed
+:- target(X,Y,I,J), target(X',Y',I',J'), X = I, Y'=J', Y<=Y', Y'<=J, X'<=X, X<=I'.
+:- target(X,Y,I,J), target(X',Y',I',J'), X = I, Y'=J', Y>=Y', Y'>=J, X'<=X, X<=I'.
+:- target(X,Y,I,J), target(X',Y',I',J'), X = I, Y'=J', Y<=Y', Y'<=J, X'>=X, X>=I'.
+:- target(X,Y,I,J), target(X',Y',I',J'), X = I, Y'=J', Y>=Y', Y'>=J, X'>=X, X>=I'.
+:- target(X,Y,I,J), target(X',Y,I',J), I>I', X<X'.
+:- target(X,Y,I,J), target(X,Y',I,J'), J>J', Y<Y'.
+
+% Each gray area must be populated with at least one moved number.
+counttarget(T,A) :- T = #count{number(X,Y,Z): number(X,Y,Z), target(X,Y,I,J), area(I,J,A)}, area(_,_,A).
+:- T = 0, counttarget(T,A).
+
+% The areas have values
+total(A,S) :- S = #sum{ Z : number(X,Y,Z), target(X,Y,I,J), area(I,J,A)}, goal(A,V).
+:- total(A,S), S != V, goal(A,V).
+
+% For each number, there is a target related to only one area
+1 { target(X,Y,I,J) : area(I,J,A) } 1 :- number(X,Y,Z).
+
+#show target/4. '''
+}
