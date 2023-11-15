@@ -59,6 +59,7 @@ xhint(XX,YY,0,D) :- first(X,Y),  edge(X,Y,XX,YY,D).
 xhint(XX,YY,N,DD) :- xhint(X,Y,N,D), not hint(X,Y,_), edge(X,Y,XX,YY,DD), D=DD.
 % If there is no hint in cell (X,Y), but the direction of the cell (X,Y) and the next one is not the same, then the counter xhint decreases by one
 xhint(XX,YY,N-1,DD) :- xhint(X,Y,N,D), N>=1, not hint(X,Y,_), edge(X,Y,XX,YY,DD), D!=DD.
+
 % Show output predicate
 #show path/4.''',
                
@@ -155,5 +156,8 @@ xhint(XX,YY,N-1,DD) :- xhint(X,Y,N,D), N>=1, not hint(X,Y,_), edge(X,Y,XX,YY,DD)
 :- hint(X,Y,_), not xhint(X,Y,0,_).
 
 % It cannot be the case that the counter xhint is not 0 in the final cell
-:-  final(X,Y), not xhint(X,Y,0,_).'''
+:-  final(X,Y), not xhint(X,Y,0,_).
+
+% Show output predicate
+#show path/4.'''
 }

@@ -25,9 +25,13 @@ actual_hop(A,B,S) :- step(X,Y,S-1), step(P,Q,S), A=P-X, B=Q-Y.
 :- actual_hop(A,B,S-1), actual_hop(C,D,S), |A+B|=3, |C+D| != 1.
 % don't visit one square twice
 visited(X,Y) :- step(X,Y,S).
+% Every dot must be visited
 :- not visited(X,Y), dot(X,Y).
+% The goal must be visited
 :- not visited(X,Y), goal(X,Y).
+% Cannot step a cell twice
 :- step(X,Y,S1), step(X,Y,S2), S1 != S2.
+% Cannot step into a cell after stepping in goal
 :- goal(X,Y), step(X,Y,S), step(P,Q,S+1).
 
 %%%%%%%%%%%%%%%%%%%%%%%%
