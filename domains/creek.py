@@ -117,5 +117,5 @@ visit(X+DX,Y+DY) :- first_visit(X,Y), path(X,Y,X+DX,Y+DY), dir(DX,DY).
 visit(X+DX,Y+DY) :- visit(X,Y), path(X,Y,X+DX,Y+DY), dir(DX,DY). 
 % It cannot be that a white cell is not visited
 :- not visit(X,Y), white(X,Y).
-% Show output predicate black
+% Show output predicate
 #show black/2.'''} 

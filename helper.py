@@ -28,7 +28,7 @@ Function that connect to OpenAI
 @param prompt
 @return response
 '''
-def get_completion(prompt, model="gpt-3.5-turbo"):
+def get_completion(prompt, model="gpt-4"): #"gpt-3.5-turbo"
     messages = [{"role": "user", "content": prompt}]
     response = openai.ChatCompletion.create(
         model=model,

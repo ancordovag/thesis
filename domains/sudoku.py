@@ -121,6 +121,6 @@ poss(X,Y,D) :- dim(X), dim(Y), dim(D), not init(X,Y).
 % It cannot be the case that a initial value in cell (X,Y) is not the same as sudoku in cell (X,Y)
 :- initial(X,Y,N), not sudoku(X,Y,N).
 
-% Show the goal predicate
+% Show output predicate
 #show sudoku/3.'''
          }

@@ -172,6 +172,6 @@ mino(X,Y,T). % position at cell X,Y of the minotaur at time T  ''',
             :- not goal.            
             % Optimization: minimize the time T            
             #minimize{ T : at(X,Y,T) }.
-            % Show the output predicate
+            % Show output predicate
             #show at/3. '''
 }

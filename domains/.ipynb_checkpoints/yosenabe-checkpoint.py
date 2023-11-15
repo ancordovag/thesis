@@ -31,7 +31,7 @@ While a number can be moved through an area, you may assume that a move stops at
             area(X,Y,A)
             % The area A has a goal G to fulfill
             goal(A,G)''',
-            "output_predicate":'''% 
+            "output_predicate":'''% The target of the cell(X,Y) is cell(P,Q)
             target(X,Y,P,Q)''',
             "rules":'''% All the posible directions
             dir(0,1). dir(0,-1). dir(1,0). dir(-1,0).
@@ -60,6 +60,7 @@ counttarget(T,A) :- T = #count{number(X,Y,Z): number(X,Y,Z), target(X,Y,I,J), ar
 total(A,S) :- S = #sum{ Z : number(X,Y,Z), target(X,Y,I,J), area(I,J,A)}, goal(A,V).
 :- total(A,S), S != V, goal(A,V).
 
+% Show output predicate
 #show target/4.''',
             "constraints":'''% For each number, there is a target related to only one area
 1 { target(X,Y,I,J) : area(I,J,A) } 1 :- number(X,Y,Z). ''',
@@ -125,5 +126,6 @@ total(A,S) :- S = #sum{ Z : number(X,Y,Z), target(X,Y,I,J), area(I,J,A)}, goal(A
 % For each number, there is a target related to only one area
 1 { target(X,Y,I,J) : area(I,J,A) } 1 :- number(X,Y,Z).
 
+% Show output predicate
 #show target/4. '''
 }
