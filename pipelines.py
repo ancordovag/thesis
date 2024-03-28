@@ -77,7 +77,7 @@ def pipeline1(example_1,example_2,query):
 #===========================================================================                     
 def produce_generation_rules(example_1, example_2, query):
     instruction = '''Given a problem and some predicates, write ASP (Answer Set Programming) rules to generate the search space of possible relations. Do not repeat rules.'''
-    prompt = get_prompt(instruction, example_1, example_2, query, ["problem","input_predicates","output_predicate","rules"])    
+    prompt = get_prompt(instruction, example_1, example_2, query, ["problem","Representation in ASP","rules"])    
     generation_rules = get_completion(prompt)
     return generation_rules, prompt
     
@@ -87,7 +87,7 @@ def produce_definition_rules(example_1,example_2,query):
     One can also add a restriction that "exactly k of <C1>, <C2>, ..., <Cm> is true" by using the following form 
     {<C1>; <C2>; ...; <Cm>}=k :- <L1>,<L2>, ..., <Ln>. 
     Given a problem, extract all constraints from the clues in the problem using only the provided constants and predicates. Do not repeat rules.'''
-    prompt = get_prompt(instruction, example_1,example_2, query, ["problem", "input_predicates","output_predicate", "constraints"])
+    prompt = get_prompt(instruction, example_1,example_2, query, ["problem", "Representation in ASP", "constraints"])
     definition_rules = get_completion(prompt)
     return definition_rules, prompt
 
@@ -108,7 +108,7 @@ def produce_definition_from_generation_rules(example_1,example_2,query):
     One can also add a restriction that "exactly k of <C1>, <C2>, ..., <Cm> is true" by using the following form 
     {<C1>; <C2>; ...; <Cm>}=k :- <L1>,<L2>, ..., <Ln>. 
     Given a problem, extract all constraints from the clues in the problem using only the provided constants and predicates. Do not repeat rules.'''
-    prompt = get_prompt(instruction, example_1,example_2, query, ["problem", "input_predicates","output_predicate", "rules", "constraints"])
+    prompt = get_prompt(instruction, example_1,example_2, query, ["problem", "Representation in ASP", "rules", "constraints"])
     definition_rules = get_completion(prompt)
     return definition_rules, prompt
     
@@ -125,7 +125,7 @@ def pipeline3(example_1,example_2,copy_problem):
 #===========================================================================
 def produce_encoding(example_1,example_2,query):
     instruction = '''Given a problem, some input predicates and an output predicate, write an ASP (Answer Set Programming) encoding.'''
-    prompt = get_prompt(instruction, example_1,example_2, query, ["problem", "input_predicates","output_predicate", "encoding"])
+    prompt = get_prompt(instruction, example_1,example_2, query, ["problem", "Representation in ASP", "encoding"])
     rules = get_completion(prompt)
     return rules, prompt
     
@@ -214,6 +214,12 @@ def produce_possible_rules4(example_1,example_2,query):
     prompt = get_prompt(instruction,example_1,example_2,query,["problem","Representation in ASP","Generation rules"])
     rules = get_completion(prompt)
     return rules, prompt
+
+def complement_rules(example_1,example_2,query):
+    instruction = '''Given a problem and some initial rules, generate an encoding, incorporating the given rules and adding rules to satisfy the constraints of the problem.'''
+    prompt = get_prompt(instruction, example_1, example_2,query,["problem","Generation rules","encoding"])
+    rules = get_completion(prompt)
+    return rules, prompt
     
 def pipeline9(example_1,example_2,query):
     possible_rules, prompt = produce_possible_rules4(example_1, example_2, query)
@@ -221,8 +227,34 @@ def pipeline9(example_1,example_2,query):
     prompts = [prompt,""]
     return answer, prompts
     
+def pipeline_complement(example_1,example_2,query):
+    complement, prompt = complement_rules(example_1, example_2, query)
+    answer = "".join([complement])
+    return answer, prompt 
+    
 #===========================================================================
-# ========================== Main Pipeline =================================
+#========================== Variation 10 ===================================
+#===========================================================================
+def produce_possible_rules5(example_1,example_2,query):
+    # TODO: Reescribirlo como que fuera un paper (Chat GPT)
+    # - an instance of the problem written as ASP facts (probar)
+    instruction = '''Given:
+    - the description of a problem,
+    - the description of the predicates ocurring in the instance,
+    - the description of an output predicate,
+    write some ASP rules, including choice rules, that generate the possible solutions of the problem. Do not write any integrity contraints nor try to solve the whole problem, but just write the rules to generate a solution.'''
+    prompt = get_prompt(instruction,example_1,example_2,query,["Short Problem","Representation in ASP","Generation rules"])
+    rules = get_completion(prompt)
+    return rules, prompt
+    
+def pipeline10(example_1,example_2,query):
+    possible_rules, prompt = produce_possible_rules4(example_1, example_2, query)
+    answer = "".join([possible_rules])
+    prompts = [prompt,""]
+    return answer, prompts
+
+#===========================================================================
+#=========================== Main Pipeline =================================
 #===========================================================================
 def pipeline(example_1,example_2,query,version):
     if version == 1:
@@ -243,6 +275,12 @@ def pipeline(example_1,example_2,query,version):
         answer, prompts = pipeline8(example_1,example_2,query)
     elif version == 9:
         answer, prompts = pipeline9(example_1,example_2,query)
+    elif version == 10:
+        answer, prompts = pipeline10(example_1,example_2,query)
+    elif version == 11:
+        answer, prompts = pipeline10(example_1,example_2,query)
+    elif version == 12:
+        answer, prompts = pipeline10(example_1,example_2,query)
     else:
         answer, prompts = pipeline1(example_1,example_2,query)
     return answer, prompts

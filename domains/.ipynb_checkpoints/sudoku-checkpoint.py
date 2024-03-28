@@ -1,7 +1,8 @@
 sudoku = {"story":"sudoku",
-          "problem":'''The task of this project is to solve a Sudoku puzzle using ASP. The goal of the game is to fill a 9x9 grid with digits so that each column, each row and each of the nine 3x3 sub-grids that compose the grid contains all numbers from 1 to 9. In other words, the grid has to be filled with numbers from 1 to 9 so that the same number does not appear twice in the same row, column or in any of the nine 3x3 sub-grids of the 9x9 playing board. Initially the grid is partially filled.''',
+          "problem":'''The goal of the game is to fill a 9x9 grid with digits so that each column, each row and each of the nine 3x3 sub-grids that compose the grid contains all numbers from 1 to 9, so that the same number does not appear twice in the same row, column or in any of the nine 3x3 sub-grids of the 9x9 playing board. Initially the grid is partially filled.''',
+          "Short Problem":'''The goal of the game is to fill a 9x9 grid with digits from 1 to 9. Initially the grid is partially filled.''',
           "Representation in ASP":'''%% INPUT
-          initial(X,Y,N). % initially cell [X,Y] contains number N
+          initial(X,Y,N). % initially cell (X,Y) contains number N
           %% OUTPUT 
           sudoku(X,Y,V). % match of a cell and a value''',
           "constants":'''index_of_row: 1; 2; 3; 4; 5; 6; 7; 8; 9.
@@ -9,11 +10,6 @@ sudoku = {"story":"sudoku",
                    digits: 1; 2; 3; 4; 5; 6; 7; 8; 9.''',
           "predicates":'''% There should be a match between index of row, index of column and digit. 
                   match(Ir,Ic,D)''',
-          "input_predicates":'''% Those are the predicates you count with:
-                  % The initial value V of cell in column X and row Y
-                  initial(X,Y,V).''',
-          "output_predicate":'''% Sudoku is a unique match of column X, row Y and a digit N
-                  sudoku(X,Y,N).''',
           "rules":'''% The size of the subgrid is defined
                   subgrid_size(3).
                   % The possible digits are from 1 to S times S, being S the size of the subgrid
@@ -87,7 +83,9 @@ sudoku = {"story":"sudoku",
             column(1..9). 
             cell(X,Y) :- row(X), column(Y).
             sudoku(X,Y,Z) :- initial(X,Y,Z).
-            1 { sudoku(X,Y,V) : value(V) } 1 :- cell(X,Y).''',
+            1 { sudoku(X,Y,V) : value(V) } 1 :- cell(X,Y).
+            % Show output predicate
+            #show sudoku/3.''',
           
             "encoding":'''% The size of the subgrid is defined
 subgrid_size(3).
@@ -119,6 +117,80 @@ poss(X,Y,D) :- dim(X), dim(Y), dim(D), not init(X,Y).
 1 { sudoku(X,Y,N) : poss(X,Y,N), map(X,Y,S) } 1 :- dim(N), subgrid(S).
 
 % It cannot be the case that a initial value in cell (X,Y) is not the same as sudoku in cell (X,Y)
+:- initial(X,Y,N), not sudoku(X,Y,N).
+
+% Show output predicate
+#show sudoku/3.''',
+
+          "lines":'''% The size of the subgrid is defined
+subgrid_size(3).
+
+% The possible digits are from 1 to S times S, being S the size of the subgrid
+dim(1..S*S) :- subgrid_size(S).
+
+% The identifier of the subgrid goes from 0 to the possible digits minus 1
+subgrid(D-1) :- dim(D).
+
+% A map is defined between X and Y, indicating the number of subgrid in which they belong
+map(X,Y,((X-1)/S)*S + (Y-1)/S) :- dim(X), dim(Y), subgrid_size(S).
+
+% A predicate that indicates which cell has a value in the beginning
+init(X,Y) :- initial(X,Y,N).
+
+% the initial value of each cell in another predicate poss
+poss(X,Y,N) :- initial(X,Y,N).
+% Generation of all possible digits for the cells that were not initialized 
+poss(X,Y,D) :- dim(X), dim(Y), dim(D), not init(X,Y).
+
+% For each cell, choose only one possibility of digit 
+1 { sudoku(X,Y,N) : poss(X,Y,N) } 1 :- dim(X), dim(Y).
+% For each column and digit, choose only one possibility of row 
+1 { sudoku(X,Y,N) : poss(X,Y,N) } 1 :- dim(X), dim(N).
+% For each row and digit, choose only one possibility of column
+1 { sudoku(X,Y,N) : poss(X,Y,N) } 1 :- dim(Y), dim(N).
+% For each digit and subgrid, choose only one possibility for each subgrid identifier in map
+1 { sudoku(X,Y,N) : poss(X,Y,N), map(X,Y,S) } 1 :- dim(N), subgrid(S).
+
+% It cannot be the case that a initial value in cell (X,Y) is not the same as sudoku in cell (X,Y)
+:- initial(X,Y,N), not sudoku(X,Y,N).
+
+% Show output predicate
+#show sudoku/3.''',
+
+          "lines_nlp":'''% The size of the subgrid is defined
+subgrid_size(3).
+
+% The size of the grid is defined from the size of the subgrid
+dim(1..S*S) :- subgrid_size(S).
+
+% The identifier for each subgrid is defined from the dimension of grid
+subgrid(D-1) :- dim(D).
+
+% A map between each cell and the subgrid in which they belong
+map(X,Y,((X-1)/S)*S + (Y-1)/S) :- dim(X), dim(Y), subgrid_size(S).
+
+% Storing the cells of the grid that have a given initial value
+init(X,Y) :- initial(X,Y,N).
+
+% The possible values for each cell, intialized with a duplicate of the given initial value
+poss(X,Y,N) :- initial(X,Y,N).
+
+% Generation of all possible digits for the cells that were not initialized 
+poss(X,Y,D) :- dim(X), dim(Y), dim(D), not init(X,Y).
+
+% Generate the output predicate choosing only one possibility of digit
+1 { sudoku(X,Y,N) : poss(X,Y,N) } 1 :- dim(X), dim(Y).
+
+% Generate the output predicate choosing only one possibility of row 
+1 { sudoku(X,Y,N) : poss(X,Y,N) } 1 :- dim(X), dim(N).
+
+% Generate the output predicate choosing only one possibility of column
+1 { sudoku(X,Y,N) : poss(X,Y,N) } 1 :- dim(Y), dim(N).
+
+% Generate the output predicate choosing only one possibility for each subgrid identifier in map
+1 { sudoku(X,Y,N) : poss(X,Y,N), map(X,Y,S) } 1 :- dim(N), subgrid(S).
+
+% It cannot be the case that a initial value is not the same as the value in the output predicate
 :- initial(X,Y,N), not sudoku(X,Y,N).
 
 % Show output predicate

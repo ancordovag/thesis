@@ -15,16 +15,9 @@ black(X,Y) % the cell at the coordinates (X,Y) is blackened ''',
         "predicates":''' % Resulting Predicate representing blackened cells: black/2. The cell at the coordinates (X,Y) is blackened
             black(X,Y) ''',
          
-         "input_predicates":'''
-            cell(X,Y). % there is a cell with coordinates (X,Y)           
-            hint(X,Y,N). % N of the (maximum four) cells at coordinates (X,Y) => (X+1,Y), (X,Y+1) and (X+1,Y+1) must be blackened''',
-         
-         "output_predicate":'''% The cell with coordinates (X,Y) is blackened
-            black(X,Y).''',
-         
-        "rules": '''% The possible aditions for a hint cell
+        "rules": '''% The possible aditions for a hint cell: 0 or 1 for each axis
 plus(0,0). plus(0,1). plus(1,0). plus(1,1).
-% Define all possible directions
+% Define all possible directions (up, down, left, right) in terms of the two axis
 dir(0,1). dir(0,-1). dir(1,0). dir(-1,0).
 % Define minimum N and maximum N cells to be blackened among the subset of possible cells, when there is a hint in cell X,Y, 
 N {black(X+A,Y+B) : cell(X+A,Y+B), plus(A,B)} N :- hint(X,Y,N).
@@ -82,17 +75,16 @@ black(X+A,Y+B) :- cell(X+A,Y+B), plus(A,B), hint(X,Y,N).''',
          "possible_rules":'''% Any cell, in principle, could be black
 possible_black(X,Y) :- cell(X,Y).''',
 
-
          "Generation rules":'''% The possible aditions for a hint(X,Y) to mark their adjacents: (X,Y), (X+1,Y), (X,Y+1) and (X+1,Y+1)
 plus(0,0). plus(0,1). plus(1,0). plus(1,1).
 % Define minimum N and maximum N cells to be blackened among the subset of possible cells, when there is a hint in cell X,Y, 
-N {black(X+A,Y+B) : cell(X+A,Y+B), plus(A,B)} N :- hint(X,Y,N).''',
+N {black(X+A,Y+B) : cell(X+A,Y+B), plus(A,B)} N :- hint(X,Y,N).
+% Show output predicate black
+#show black/2.''',   
          
-
-         
-        "encoding":'''% The possible aditions for a hint cell
+        "encoding":'''% The possible additions for a hint cell: 0 or 1 for each axis
 plus(0,0). plus(0,1). plus(1,0). plus(1,1).
-% Define all possible directions
+% Define all possible directions (up, down, left, right) in terms of the two axis
 dir(0,1). dir(0,-1). dir(1,0). dir(-1,0).
 % Define minimum N and maximum N cells to be blackened among the subset of possible cells, when there is a hint in cell X,Y, 
 N {black(X+A,Y+B) : cell(X+A,Y+B), plus(A,B)} N :- hint(X,Y,N).

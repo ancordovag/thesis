@@ -1,4 +1,7 @@
 venv/
 venv/*
 config.yml
+.ipynb_checkpoints/
 .ipynb_checkpoints/*
+generated_solutions/
+generated_solutions/*

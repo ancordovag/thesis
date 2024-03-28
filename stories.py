@@ -14,3 +14,6 @@ def get_all_projects():
 
 def get_useful_projects():
     return [creek, minotaur, seeknumbers, sudoku, yosenabe, hop, lights]
+
+def get_short_projects():
+    return [creek, minotaur, seeknumbers, sudoku, yosenabe, hop, lights]
