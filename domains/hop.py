@@ -85,36 +85,36 @@ visited(X,Y) :- step(X,Y,S).
 %Show output predicate
 #show step/3. ''',
 
-       "lines":'''% Given C columns defined in atom column(C) and R rows in "rows(R)", the predicate "cell" has all the combinations of column and row
+       "lines":'''% Define the cells in the grid with coordinates (X,Y), where X ranges from 1 to the number of columns (C) and Y ranges from 1 to the number of rows (R).
 cell(X,Y) :- X=1..C, cols(C), Y=1..R, rows(R).
-% Given the predicate "start" of two dimensions showing a position, the predicate "step" has the same position in the time 0.
+% Define the starting cell (X,Y) as visited at time step 0.
 step(X,Y,0) :- start(X,Y).
-% The possible hops are generated through the predicate "hop" of 2 variables, with possible values between -3 and 3. One of the variables should always be 0, and "hop(0,0)" does not exist
+% Define the possible hops in horizontal or vertical directions with lengths 1, 2, and 3.
 hop(0,1). hop(0,2). hop(0,3). hop(0,-1). hop(0,-2). hop(0,-3).
 hop(1,0). hop(2,0). hop(3,0). hop(-1,0). hop(-2,0). hop(-3,0).
-% If a "step" is not the last step defined as "numstep(S)", then a new "step" is generated as the current position of the "step" plus a "hop". Only one next "step" is allowed.
+% Ensure that at each time step (S+1), the path can make exactly one hop (A,B) from the current position (X,Y) if the maximum number of steps (N) has not been reached.
 1 {step(X+A,Y+B,S+1) : hop(A,B), cell(X+A,Y+B)} 1 :- step(X,Y,S), not numsteps(S).
-% The predicate "actual_hop" of 3 variables shows the difference in position of the last 2 steps.
+% Define the actual hop (A,B) made between time step (S-1) and time step (S), where (P,Q) is the position at time step (S) and (X,Y) is the position at time step (S-1).
 actual_hop(A,B,S) :- step(X,Y,S-1), step(P,Q,S), A=P-X, B=Q-Y.
-% It cannot be that the absolute value of the sum of variable positions of "actual_hop" in timestep 1 is bigger than 1
+% Ensure that the first actual hop (A,B) made between time step 0 and time step 1 has a length of exactly 1.
 :- actual_hop(A,B,1), |A+B| > 1.
-% If last hop was length 1, it cannot be that the absolute value of the sum of variable positions of "actual_hop" is not 2
+% Ensure that if the actual hop at time step (S-1) has a length of 1, then the actual hop at time step (S) cannot have a length of 2.
 :- actual_hop(A,B,S-1), actual_hop(C,D,S), |A+B|=1, |C+D| != 2.
-% If last hop was length 2, it cannot be that the absolute value of the sum of variable positions of "actual_hop" is not 3
+% Ensure that if the actual hop at time step (S-1) has a length of 2, then the actual hop at time step (S) cannot have a length of 3.
 :- actual_hop(A,B,S-1), actual_hop(C,D,S), |A+B|=2, |C+D| != 3.
-% If last hop was length 3, it cannot be that the absolute value of the sum of variable positions of "actual_hop" is not 1
+% Ensure that if the actual hop at time step (S-1) has a length of 3, then the actual hop at time step (S) cannot have a length of 1.
 :- actual_hop(A,B,S-1), actual_hop(C,D,S), |A+B|=3, |C+D| != 1.
-% The predicate "visited" of 2 variables keeps the position of each step
+% Define the cell (X,Y) as visited if it is part of the path at any time step (S).
 visited(X,Y) :- step(X,Y,S).
-% Every dot must be visited
+% Ensure that all predefined intermediate steps (dots) are visited. If a dot (X,Y) is not visited, it violates the constraint.
 :- not visited(X,Y), dot(X,Y).
-% The goal must be visited
+% Ensure that the goal cell (X,Y) is visited. If the goal cell is not visited, it violates the constraint.
 :- not visited(X,Y), goal(X,Y).
-% Cannot step a cell twice
+% Ensure that a cell (X,Y) is visited at most once throughout the path. If a cell is visited at two different time steps (S1 and S2), it violates the constraint.
 :- step(X,Y,S1), step(X,Y,S2), S1 != S2.
-% Cannot step into a cell after stepping in goal
+% Ensure that the goal cell (X,Y) is the last cell visited in the path. If a cell (P,Q) is visited after the goal cell at the same time step (S+1), it violates the constraint.
 :- goal(X,Y), step(X,Y,S), step(P,Q,S+1).
-%Show output predicate "step"
+%Show output predicate
 #show step/3. ''',
 
         "normal_rules":'''% generate cells

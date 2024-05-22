@@ -154,6 +154,22 @@ def get_improved_nlp(problem,comment, model="gpt-4"): #"gpt-3.5-turbo"
     time.sleep(0.2)
     return response.choices[0].message["content"]
 
+'''
+Function that connect to OpenAI to write line by line
+@param prompt
+@return response
+'''
+def get_comments(prompt, model="gpt-4"): #"gpt-3.5-turbo"
+    messages = [{"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": '''Given the description of a problem, write some logic rules to solve the problem. Each rule should begin with the marker "%" '''}]
+    messages.append({"role": "user", "content": prompt})
+    response = openai.ChatCompletion.create(
+        model=model,
+        messages=messages,
+        temperature=0, # this is the degree of randomness of the model's output
+    )
+    time.sleep(0.2)
+    return response.choices[0].message["content"]
 #===========================================================================
 # =============================== Others ===================================
 #===========================================================================

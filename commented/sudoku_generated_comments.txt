@@ -1,0 +1,10 @@
+% Define the 9x9 grid as a list of lists, where each list represents a row in the grid.
+% Define the 3x3 sub-grids as a list of lists, where each list represents a sub-grid in the grid.
+% Define a cell (X,Y) in the grid as filled if it contains a number from 1 to 9.
+% Define a cell (X,Y) in the grid as empty if it does not contain a number from 1 to 9.
+% Ensure that each row in the grid contains all numbers from 1 to 9 exactly once.
+% Ensure that each column in the grid contains all numbers from 1 to 9 exactly once.
+% Ensure that each 3x3 sub-grid in the grid contains all numbers from 1 to 9 exactly once.
+% Define a valid move as filling an empty cell (X,Y) with a number N from 1 to 9 if the row, column, and 3x3 sub-grid that the cell belongs to do not already contain the number N.
+% Define the solution to the problem as a sequence of valid moves that fills all empty cells in the grid.
+% Show output predicate

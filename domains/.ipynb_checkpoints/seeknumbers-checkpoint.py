@@ -166,46 +166,46 @@ xhint(XX,YY,N-1,DD) :- xhint(X,Y,N,D), N>=1, not hint(X,Y,_), edge(X,Y,XX,YY,DD)
 % Show output predicate
 #show path/4.''',
 
-               "lines":'''% Generates a predicate called neighbour that specify if it is vertical (v) or horizontal (h). 4 rules, one for each direction.
+               "lines":'''% Define a neighbour relationship between cell (X,Y) and cell (XX,YY) with direction D (either vertical 'v' or horizontal 'h'), where (XX,YY) is immediately above (for 'v'), below (for 'v'), to the right (for 'h'), or to the left (for 'h') of (X,Y).
 neighbour(X,Y,XX,YY,D) :- XX=X, YY=Y+1, D=v, cell(X,Y), cell(XX,YY).
 neighbour(X,Y,XX,YY,D) :- XX=X, YY=Y-1, D=v, cell(X,Y), cell(XX,YY).
 neighbour(X,Y,XX,YY,D) :- XX=X+1, YY=Y, D=h, cell(X,Y), cell(XX,YY).
 neighbour(X,Y,XX,YY,D) :- XX=X-1, YY=Y, D=h, cell(X,Y), cell(XX,YY).
 
-% Generates one edge between cell (X,Y) and one of its neighbours (XX,YY), if (X,Y) is not final. 
+% Ensure that for each cell (X,Y) that is not the final cell, there is exactly one outgoing edge (XX,YY) with direction D (either vertical 'v' or horizontal 'h') to a neighbouring cell (XX,YY).
 1 { edge(X,Y,XX,YY,D) : neighbour(X,Y,XX,YY,D) } 1 :- cell(X,Y), not final(X,Y).
 
-% Path is the same as edge, without specifying vertical or horizontal, expressed by variable D.
+ % Define a path between cell (X,Y) and cell (XX,YY) if there exists an edge between them.
 path(X,Y,XX,YY) : edge(X,Y,XX,YY,_).
 
-% It cannotbe the case that there is not incoming edge to a cell if that cell is not the first one
+% Ensure that each cell (XX,YY) that is not the starting cell has at least one incoming edge from a neighbouring cell.
 :- not 1 { edge(X,Y,XX,YY,D) : neighbour(X,Y,XX,YY,D) } 1, cell(XX,YY), not first(XX,YY).
 
-% The first cell is visited
+% Mark the starting cell (X,Y) as visited.
 visited(X,Y) :- first(X,Y).
 
-% If a cell (X,Y) is visited, and there is an edge between (X,Y) and (XX,YY), then cell (X,Y) is also visited
+% Mark cell (XX,YY) as visited if there exists a path from a previously visited cell (X,Y) to cell (XX,YY).
 visited(XX,YY) :- visited(X,Y), edge(X,Y,XX,YY,_).
 
-% it cannot be the case that a cell is not visited
+% Ensure that all cells in the grid are visited. If a cell (X,Y) is not visited, it violates the constraint.
 :- cell(X,Y), not visited(X,Y).
 
-% xhint is a counter that starts with N in the cell (XX,YY) when there is an edge between hint cell (X,Y) and saves direction D
+% Define an X-hint between cell (XX,YY) and a cell containing the hint number N if there exists an edge between (X,Y) and (XX,YY) with direction D.
 xhint(XX,YY,N,D) :- hint(X,Y,N), edge(X,Y,XX,YY,D).
 
-% xhint in cell (XX,YY), and it is 0 in the cell (XX,YY)
+% Define an X-hint between cell (XX,YY) and a cell containing the hint number 0 if (X,Y) is the starting cell and there exists an edge between (X,Y) and (XX,YY) with direction D.
 xhint(XX,YY,0,D) :- first(X,Y),  edge(X,Y,XX,YY,D).
 
-% If there is no hint in cell (X,Y), then the next connected cell has the same counter if the direction if the same
+% Define an X-hint between cell (XX,YY) and a cell containing the hint number N if there exists an X-hint between another cell (X,Y) and a cell containing the hint number N with direction D, and there is an edge between (X,Y) and (XX,YY) with direction DD, where D is the same as DD.
 xhint(XX,YY,N,DD) :- xhint(X,Y,N,D), not hint(X,Y,_), edge(X,Y,XX,YY,DD), D=DD.
 
-% If there is no hint in cell (X,Y), but the direction of the cell (X,Y) and the next one is not the same, then the counter xhint decreases by one
+% Define an X-hint between cell (XX,YY) and a cell containing the hint number (N-1) if there exists an X-hint between another cell (X,Y) and a cell containing the hint number N with direction D, and N is greater than or equal to 1, and there is an edge between (X,Y) and (XX,YY) with direction DD, where D is different from DD.
 xhint(XX,YY,N-1,DD) :- xhint(X,Y,N,D), N>=1, not hint(X,Y,_), edge(X,Y,XX,YY,DD), D!=DD.
 
-% It cannot be the case that the counter xhint is not 0 in the cell of a hint
+% Ensure that if a cell (X,Y) contains a hint number, there must be an X-hint from (X,Y) with hint number 0.
 :- hint(X,Y,_), not xhint(X,Y,0,_).
 
-% It cannot be the case that the counter xhint is not 0 in the final cell
+% Ensure that if the final cell (X,Y) is specified, there must be an X-hint from (X,Y) with hint number 0.
 :-  final(X,Y), not xhint(X,Y,0,_).
 
 % Show output predicate

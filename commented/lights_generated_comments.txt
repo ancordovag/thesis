@@ -1,0 +1,8 @@
+% Define the four possible directions for light propagation: up (0,1), down (0,-1), right (1,0), and left (-1,0), for orthogonal connectivity and adjacency checks.
+% Ensure that each non-given cell (X,Y) is illuminated by at least one light.
+% Ensure that a light does not illuminate another light.
+% Ensure that a light does not pass through a given cell (either empty or containing a number).
+% For each cell with a number 'n', ensure that there are exactly 'n' horizontally or vertically adjacent cells, each containing a light.
+% Ensure that a light is not placed on a cell that is already illuminated by another light.
+% Ensure that a light is not placed on a cell that is given as an initial condition.
+% Show output predicate.

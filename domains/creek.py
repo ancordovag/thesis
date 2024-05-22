@@ -112,32 +112,32 @@ visit(X+DX,Y+DY) :- visit(X,Y), path(X,Y,X+DX,Y+DY), dir(DX,DY).
 % Show output predicate
 #show black/2.''',
          
-        "lines":'''% Four atoms with predicate "plus" of 2 variables with possible values 0 and 1.
+        "lines":'''% Define the plus shape by specifying its four corners: (0,0), (0,1), (1,0), and (1,1).
 plus(0,0). plus(0,1). plus(1,0). plus(1,1).
-% The four possible directions, predicate "dir" with 2 variables, of value 0, 1 or -1. dir(0,0) is not an option.
+% Define the four possible directions for movement: up (0,1), down (0,-1), right (1,0), and left (-1,0), for orthogonal connectivity and adjacency checks.
 dir(0,1). dir(0,-1). dir(1,0). dir(-1,0).
-% Predicate "black" of 2 variables is generated as the sum of the sum of the position (X,Y) and (A,B), for plus (A,B), if the cell(X+A,Y+B) exists, given hint(X,Y,N). There should be exactly "N" "black" predicates generated.
+% Ensure that exactly N cells adjacent to the hint position (X,Y) are blackened, where the adjacency is defined by the plus shape around the hint position.
 N {black(X+A,Y+B) : cell(X+A,Y+B), plus(A,B)} N :- hint(X,Y,N).
 
-% Predicate "path" has 4 variables, indicating a path between two cells of predicate "white" of positions (X,Y) and (P,Q) if the sum of the absolute values of the differences of P and X, and Q and Y, is 1. Absolute value is expresed with bars: "||"
-path(X,Y,P,Q) :- white(X,Y), white(P,Q), |P - X| + |Q - Y| = 1.
+% Define a path between two white cells (X,Y) and (P,Q) if they are orthogonally adjacent, meaning they share a side and are exactly one unit apart.
+path(X,Y,P,Q) :- white(X,Y), white(P,Q), |P-X| + |Q-Y| = 1.
 
-% If a cell is not black, it should be white
+% A cell (X,Y) is white (non-blackened) if it is not blackened and exists within the grid.
 white(X,Y) :- not black(X,Y), cell(X,Y).
-% If a cell is not white, it should be black
+% A cell (X,Y) is blackened if it is not white and exists within the grid.
 black(X,Y) :- not white(X,Y), cell(X,Y).
 
-% Find the minimum column of predicate "mini_x" containing a white cell 
+% Determines the minimum X-coordinate among all white cells in the grid. 
 mini_x(M) :- M = #min{X,Y : white(X,Y)}.
-% Find the minimum row, predicate "mini_y", containing a white cell in the minimum column containing a white cell, using the last predicate "mini_x"
+% Calculates the minimum Y-coordinate among all white cells that share the minimum X-coordinate determined by mini_x.
 mini_y(N) :- N = #min{Y : white(M,Y), mini_x(M)}.
-% The predicate "first_visit" has 2 variables: the minimum column and the minimum row defined before
+% Identifies the cell (M, N) as the starting point for path traversal, where M is the minimum X-coordinate and N is the minimum Y-coordinate among all white cells.
 first_visit(M,N) :- mini_x(M), mini_y(N).
 % Declare a cell as visited if there is an incoming path from the first visited cell
 visit(X+DX,Y+DY) :- first_visit(X,Y), path(X,Y,X+DX,Y+DY), dir(DX,DY).
-% Declare a cell as visited if there is an incoming path from a already visited cell
+% Marks the cell at coordinates (X+DX, Y+DY) as visited, starting from the first visited cell (X, Y), if there is a path from (X, Y) to (X+DX, Y+DY) according to the direction specified by dir(DX,DY).
 visit(X+DX,Y+DY) :- visit(X,Y), path(X,Y,X+DX,Y+DY), dir(DX,DY). 
-% It cannot be that a white cell is not visited
+% Ensure that all white cells in the grid are visited. If a white cell (X,Y) is not visited, it violates the constraint.
 :- not visit(X,Y), white(X,Y).
-% Show output predicate "black"
-#show black/2.'''} 
+% Show output predicate
+#show black/2.''',} 

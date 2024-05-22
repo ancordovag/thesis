@@ -79,11 +79,11 @@ lighted(X2,Y2) :- light(X1,Y1), reach(X1,Y1,X2,Y2,DX,DY).
 % Show output predicate
 #show light/2.''',
 
-          "lines":'''% Given a number R of rows "rows(R)", and C columns "cols(C)", define "fields" as the combination of a row X and a column Y if this combination X,Y is not "empty" 
+          "lines":'''% Define the non-empty cells (X,Y) in the grid, where X ranges from 1 to the number of rows (R) and Y ranges from 1 to the number of columns (C).
 field(X,Y) :- rows(R), cols(C), X = 1..R, Y = 1..C, not empty(X,Y).
-% Define predicate digit/2 from digit/3 that only shows the position (first 2 variables) of the digit
+% Define the cells (X,Y) that contain a digit.
 digit(X,Y) :- digit(X,Y,N).
-% Define the four possible distances from a field, as "delta" with 2 variables, showing a difference of 1 field with respect to (0,0)
+% Define the four possible directions for illumination: up (1,0), down (-1,0), right (0,1), and left (0,-1).
 delta(1,0). delta(-1,0). delta(0,1). delta(0,-1).
 % Define "neighbor" of 6 variables for 2 fields if there is a "delta" distance between them TODO
 neighbor(X1,Y1,X2,Y2,DX,DY) :- field(X1,Y1), field(X2,Y2), delta(DX,DY), X2 = X1+DX, Y2 = Y1+DY.

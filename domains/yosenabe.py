@@ -123,38 +123,39 @@ total(A,S) :- S = #sum{ Z : number(X,Y,Z), target(X,Y,I,J), area(I,J,A)}, goal(A
 % Show output predicate
 #show target/4. ''',
 
-            "lines":'''% The four possible directions, predicate "dir" with 2 variables, of value 0, 1 or -1. dir(0,0) is not an option.
+            "lines":'''% Define the four possible directions for movement: up (0,1), down (0,-1), right (1,0), and left (-1,0), for orthogonal connectivity and adjacency checks.
             dir(0,1). dir(0,-1). dir(1,0). dir(-1,0).
 
-% For each "number", generate an atom with predicate "target" of 4 variables, 2 of them the position of the "number", and the other 2 the position of an "area"
+% Ensure that each number (X,Y,Z) is moved into exactly one gray area (I,J).
 1 { target(X,Y,I,J) : area(I,J,A) } 1 :- number(X,Y,Z).
 
-% There is no two "targets" sharing everything but the third variable
+% Ensure that a number (X,Y) is not moved into more than one gray area (I,J).
 :- target(X,Y,I,J), I != I', target(X,Y,I',J).         
-% There is no two "targets" sharing everything but the fourth variable
+% Ensure that a number (X,Y) is not moved into more than one gray area (I,J).
 :- target(X,Y,I,J), J != J', target(X,Y,I,J').         
-% An atom "target" cannot have simultaneously the same value for the first and third variable, and for the second and four variable 
+% Ensure that a number (X,Y) is moved into a gray area (I,J) such that it is adjacent to it, i.e., (X,Y) shares a side with (I,J).
 :- target(X,Y,I,J), X != I, Y != J.                         
-% There can not be two atoms target starting from the same position (first two variables)
+% Ensure that two numbers (X,Y) and (X',Y') are not moved into the same gray area (I,J) if they occupy different cells.
 :- target(X,Y,I,J), target(X',Y',I,J), cell(X,Y) != cell(X',Y').    
 
-% Six rules to indicate that the paths are not crossed. All rules are integrity constraints containing 2 atoms "targets"
+% Ensure that two numbers (X,Y) and (X',Y') are not moved into the same gray area (I,J) if they cross each other horizontally.
 :- target(X,Y,I,J), target(X',Y',I',J'), X = I, Y'=J', Y<=Y', Y'<=J, X'<=X, X<=I'.
 :- target(X,Y,I,J), target(X',Y',I',J'), X = I, Y'=J', Y>=Y', Y'>=J, X'<=X, X<=I'.
 :- target(X,Y,I,J), target(X',Y',I',J'), X = I, Y'=J', Y<=Y', Y'<=J, X'>=X, X>=I'.
 :- target(X,Y,I,J), target(X',Y',I',J'), X = I, Y'=J', Y>=Y', Y'>=J, X'>=X, X>=I'.
+% Ensure that two numbers (X,Y) and (X,Y') are not moved into the same gray area (I,J) if they cross each other vertically.
 :- target(X,Y,I,J), target(X',Y,I',J), I>I', X<X'.
 :- target(X,Y,I,J), target(X,Y',I,J'), J>J', Y<Y'.
 
-% A new predicate "counttarget" with two variables: a counter of the numbers moved to an area, and the identifier of the area.
+% Count the number of numbers moved into each gray area (A).
 counttarget(T,A) :- T = #count{number(X,Y,Z): number(X,Y,Z), target(X,Y,I,J), area(I,J,A)}, area(_,_,A).
 
-% It cannot be that the count of "counttarget" is 0.
+% Ensure that each gray area (A) is populated with at least one moved number.
 :- T = 0, counttarget(T,A).
 
-% Predicate "total" of two variables map the identifier of the area with the sum of the numbers moved into that area
+% Calculate the total sum of the numbers moved into each gray area (A), where the sum is equal to the goal value (V) specified for the area.
 total(A,S) :- S = #sum{ Z : number(X,Y,Z), target(X,Y,I,J), area(I,J,A)}, goal(A,V).
-% The sum of "total" should match the "goal" value for each area
+% Ensure that the total sum (S) of the numbers moved into each gray area (A) is equal to the goal value (V) specified for the area.
 :- total(A,S), S != V, goal(A,V).
 
 % Show output predicate

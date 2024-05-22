@@ -1,0 +1,8 @@
+% Define the cells (X,Y) in the grid, where X ranges from 1 to the number of rows (R) and Y ranges from 1 to the number of columns (C).
+% Define the cells (X,Y) that contain a digit.
+% Define the four possible directions for adjacency: up (1,0), down (-1,0), right (0,1), and left (0,-1).
+% Define a cell (X,Y) as blackened or white.
+% Ensure that all white cells are orthogonally connected. If a white cell (X,Y) cannot be reached from another white cell (P,Q) by moving only horizontally and vertically without crossing a black cell, it violates the constraint.
+% Ensure that a cell (X,Y) with a digit N has exactly N blackened adjacent cells. If the number of blackened adjacent cells is not equal to N, it violates the constraint.
+% Ensure that a cell (X,Y) without a digit is not blackened. If a cell without a digit is blackened, it violates the constraint.
+% Show output predicate "blackened".

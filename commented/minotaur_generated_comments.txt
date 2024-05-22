@@ -1,0 +1,13 @@
+% Define the four possible directions for movement: up (0,1), down (0,-1), right (1,0), and left (-1,0), for both the player and the Minotaur.
+% Define the starting position of the player and the Minotaur.
+% Define the goal position.
+% Define the positions of the walls in the labyrinth.
+% A cell (X,Y) is reachable from another cell (P,Q) if they are orthogonally adjacent, meaning they share a side and are exactly one unit apart, and there is no wall between them.
+% The player can move to a cell (X,Y) from a cell (P,Q) if the cell (X,Y) is reachable from the cell (P,Q) and the Minotaur is not in the cell (X,Y).
+% The Minotaur can move to a cell (X,Y) from a cell (P,Q) if the cell (X,Y) is reachable from the cell (P,Q) and the player is not in the cell (X,Y).
+% The Minotaur moves towards the player by choosing the direction that decreases the Manhattan distance between them.
+% If the Minotaur cannot move towards the player, it stays in its current position.
+% The player reaches the goal if they are in the goal position and the Minotaur is not.
+% The player is eaten by the Minotaur if they are in the same position.
+% The player can trap the Minotaur by moving in such a way that the Minotaur is surrounded by walls and cannot move.
+% Show output predicate

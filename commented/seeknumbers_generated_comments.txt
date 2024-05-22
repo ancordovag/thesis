@@ -1,0 +1,12 @@
+% Define the grid size and the coordinates of each cell.
+% Define the starting cell (white circle) and the ending cell (black circle).
+% Define the direction of movement: up, down, left, and right.
+% Define a path from cell (X,Y) to cell (P,Q) if they are horizontally or vertically adjacent.
+% Define a cell as visited if it is included in the path.
+% Ensure that the path starts at the cell with the white circle and ends at the cell with the black circle.
+% Ensure that the path traverses each cell exactly once.
+% Ensure that the path does not cross or intersect itself.
+% Define a bend in the path as a change in direction.
+% Ensure that between a cell with a number N and the next cell with a number or the cell with the black circle, the path bends exactly N times.
+% Ensure that the path does not bend between the cell with the white circle and the first cell with a number.
+% Show output predicate.

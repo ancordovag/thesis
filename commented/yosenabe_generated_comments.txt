@@ -1,0 +1,15 @@
+% Define the next position (X+DX,Y+DY) if there is no number between the current position (X,Y) and the next position (X+DX,Y+DY), and both (X,Y) and (X+DX,Y+DY) are within the grid.
+% Define the next position (X,Y) to be the current position if (X,Y) is within the grid.
+% Define the position (X,Y) at time 0 to be the start position (X,Y).
+% Ensure that at each time step (T+1), the number can move to exactly one adjacent cell (XX,YY) from the current position (X,Y) if the maximum number of steps (S) has not been reached and the current position is not the goal.
+% Define the movement of the number from cell (X,Y) to cell (XX,YY) with the corresponding direction vector (DX,DY) if there is no number in between.
+% Define the next position (XX,YY) of the number from the current position (X,Y) if the number can take a step in the direction (DX,DY).
+% Define the position (X,Y) of the number at time 0 to be the starting position (X,Y).
+% Define the position (XXX,YYY) of the number at time (T+1) if the maximum number of steps (S) has not been reached, the current position of the number is (X,Y) at time T, and the next position of the number is (XXX,YYY) based on the direction at time (T+1).
+% Ensure that the paths of any two numbers do not cross or meet at any grid cell.
+% Ensure that each gray area is populated with at least one number.
+% Ensure that the numbers moved into an area with a goal number sum up exactly to the goal.
+% Define the goal state as being achieved if all numbers reach a gray area and all conditions are met.
+% Ensure that the goal is reached. If the goal is not reached, it violates the constraint.
+% Minimize the time T taken for all numbers to reach a gray area.
+% Show output predicate
